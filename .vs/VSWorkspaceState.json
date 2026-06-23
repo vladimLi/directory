@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\backend\\DirectoryService",
+    "\\backend\\DirectoryService\\src",
+    "\\backend\\DirectoryService\\src\\DirectoryService.Domain",
+    "\\backend\\DirectoryService\\src\\DirectoryService.Domain\\Departments",
+    "\\backend\\DirectoryService\\src\\DirectoryService.Domain\\Departments\\ValueObjects",
+    "\\backend\\DirectoryService\\src\\DirectoryService.Domain\\Locations"
+  ],
+  "SelectedNode": "\\backend\\DirectoryService\\src\\DirectoryService.Domain\\DirectoryService.Domain.csproj",
+  "PreviewInSolutionExplorer": false
+}
