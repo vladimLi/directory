@@ -9,7 +9,7 @@ namespace DirectoryService.Domain.Positions.ValueObjects
         {
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
-            if (value.Length > LengthConstants.Length50 || value.Length > LengthConstants.Length500)
+            if (value.Length > LengthConstants.Length50)
                 throw new ArgumentException("Value is too long.", nameof(value));
             return new(value);
         }

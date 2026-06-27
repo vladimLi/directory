@@ -167,7 +167,7 @@ namespace DirectoryService.Infrastructure.Postgres.Migrations
                         .HasColumnName("position_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_department_position_id");
+                        .HasName("pk_department_positions");
 
                     b.HasIndex("DepartmentId");
 
