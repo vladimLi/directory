@@ -8,7 +8,7 @@ public sealed record DepartmentPath
     public static DepartmentPath Create(
     string slug,
     DepartmentPath? parentPath = null,
-    Guid? parentId = null)
+    DepartmentId? parentId = null)
     {
         if (string.IsNullOrWhiteSpace(slug))
             throw new ArgumentException("Slug cannot be null or empty.", nameof(slug));

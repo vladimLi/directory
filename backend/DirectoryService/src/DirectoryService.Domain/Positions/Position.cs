@@ -5,20 +5,22 @@ namespace DirectoryService.Domain.Positions
 {
     public sealed class Position
     {
-        public Guid Id { get; }
-        public PositionName Name { get; }
+        public PositionId Id { get; } = null!;
+        public PositionName Name { get; } = null!;
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
-        private Position(string name)
+        //EF Core
+        public Position(){}
+        private Position(Guid id, string name)
         {
-            Id = Guid.CreateVersion7();
+            Id = PositionId.Create(id);
             Name = PositionName.Create(name);
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
         public static Position Create(string name)
         {
-            return new(name);
+            return new(Guid.CreateVersion7(), name);
         }
     }
 }
