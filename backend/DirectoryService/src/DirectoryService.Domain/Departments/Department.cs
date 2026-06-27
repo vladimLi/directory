@@ -4,20 +4,23 @@ namespace DirectoryService.Domain.Departments;
 
 public sealed class Department
 {
-    public Guid Id { get; }
-    public DepartmentName Name { get; }
-    public DepartmentSlug Slug { get; }
-    public DepartmentPath Path { get; }
-    public Guid? ParentId { get; }
+    public DepartmentId Id { get; } = null!;
+    public DepartmentName Name { get; } = null!;
+    public DepartmentSlug Slug { get; } = null!;
+    public DepartmentPath Path { get; } = null!;
+    public DepartmentId? ParentId { get; }
     public DateTime CreatedAt { get; }
     public DateTime UpdatedAt { get; }
+    //EF Core
+    public Department(){}
     private Department(
+        Guid id,
         string name,
         string slug,
         DepartmentPath? parentPath = null,
-        Guid? parentId = null)
+        DepartmentId? parentId = null)
     {
-        Id = Guid.CreateVersion7();
+        Id = DepartmentId.Create(id);
         Name = DepartmentName.Create(name);
         Slug = DepartmentSlug.Create(slug);
         Path = DepartmentPath.Create(slug, parentPath, parentId);
@@ -25,17 +28,17 @@ public sealed class Department
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
-    public static Department CreateRoot(string name, string slug)
+    public static Department CreateRoot( string name, string slug)
     {
-        return new Department(name, slug, parentPath: null, parentId: null);
+        return new Department(Guid.CreateVersion7(), name, slug, parentPath: null, parentId: null);
     }
 
     public static Department CreateChild(
         string name,
         string slug,
         DepartmentPath parentPath,
-        Guid parentId)
+        DepartmentId parentId)
     {
-        return new Department(name, slug, parentPath, parentId);
+        return new Department(Guid.CreateVersion7(), name, slug, parentPath, parentId);
     }
 }

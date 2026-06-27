@@ -4,16 +4,19 @@ namespace DirectoryService.Domain.Locations;
 
 public sealed class Location
 {
-    public Guid Id { get; }
-    public LocationName Name { get; }
-    public LocationAddress Address { get; }
+    public LocationId Id { get; } = null!;
+    public LocationName Name { get; } = null!;
+    public LocationAddress Address { get; } = null!;
     public DateTime CreatedAt { get; }
     public DateTime UpdatedAt { get; }
+    //EF Core
+    public Location(){}
     private Location(
+        Guid id,
         string name,
         string address)
     {
-        Id = Guid.CreateVersion7();
+        Id = LocationId.Create(id);
         Name = LocationName.Create(name);
         Address = LocationAddress.Create(address);
         CreatedAt = DateTime.UtcNow;
@@ -22,6 +25,6 @@ public sealed class Location
 
     public static Location Create(string name, string address)
     {
-        return new Location(name, address);
+        return new Location(Guid.CreateVersion7(), name, address);
     }
 }

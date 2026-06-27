@@ -8,10 +8,8 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddControllers();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+builder.Services.AddScoped<AppDbContext>(_ =>
+    new AppDbContext(builder.Configuration.GetConnectionString("AppDbContext")!));
 
 builder.Services.AddHealthChecks();
 
