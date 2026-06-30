@@ -42,6 +42,9 @@ dotnet_diagnostic.S1135.severity = none
 # S1144: неиспользуемые private члены — ложные срабатывания на EF shadow props
 dotnet_diagnostic.S1144.severity = none
 
+# CA1515:Тип может быть запечатанным, так как у него нет подтипов в содержащей его сборке и он невидим извне
+dotnet_diagnostic.CA1515.severity = none
+
 # Правила строже, чем по умолчанию:
 dotnet_diagnostic.S1125.severity = error  # Redundant Boolean literal
 dotnet_diagnostic.S6673.severity = error  # Serilog template placeholder order
