@@ -1,3 +1,3 @@
-namespace DirectoryService.Contracts.DepartmentsDto;
+namespace DirectoryService.Contracts.Departments;
 
 public record GetDepartmentsRequest(string? Search = null);
