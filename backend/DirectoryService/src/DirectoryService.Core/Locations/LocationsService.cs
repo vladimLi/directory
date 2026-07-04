@@ -1,5 +1,6 @@
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Domain.Locations;
+using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
@@ -44,8 +45,12 @@ public class LocationsService :ILocationsService
         
         //Создание сущности
         
-        string address = $"{request.Address.Country}, г.{request.Address.City}, ул.{request.Address.Street}";
-        var location = Location.Create(request.Name, address);
+        var address = LocationAddress.Create(
+            request.Address.Street,
+            request.Address.City,
+            request.Address.Country);
+        
+        var location = Location.Create(request.Name, address.Value);
         
         //Сохранение в БД
         
