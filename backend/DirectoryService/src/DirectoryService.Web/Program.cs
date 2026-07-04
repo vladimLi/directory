@@ -1,18 +1,14 @@
 using DirectoryService.Infrastructure.Postgres;
+using DirectoryService.Web;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
-
-builder.Services.AddControllers();
-
-builder.Services.AddScoped<AppDbContext>(_ =>
-    new AppDbContext(builder.Configuration.GetConnectionString("AppDbContext")!));
+builder.Services
+    .AddInfrastructure(builder.Configuration)
+    .AddProgramDependencies();
 
 builder.Services.AddHealthChecks();
-
-builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 var app = builder.Build();
 

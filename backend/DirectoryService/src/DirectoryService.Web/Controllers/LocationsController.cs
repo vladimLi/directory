@@ -1,4 +1,5 @@
-﻿using DirectoryService.Contracts.LocationsDto;
+﻿using DirectoryService.Contracts.Locations;
+using DirectoryService.Core.Locations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -7,13 +8,19 @@ namespace DirectoryService.Web.Controllers;
 [Route("locations")]
 public class LocationsController : ControllerBase
 {
+    private readonly ILocationsService _locationsService;
+    public LocationsController(ILocationsService locationsService)
+    {
+        _locationsService = locationsService;
+    }
+    
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        var response = new LocationResponse(Guid.NewGuid(), request.Name, request.Address);
-        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+        var locationId = await _locationsService.Create(request, cancellationToken);
+        return Ok(locationId);
     }
 
     [HttpGet("{id:guid}")]
@@ -26,7 +33,9 @@ public class LocationsController : ControllerBase
             return NotFound();
         }
 
-        var response = new LocationResponse(id, "Stub location", new LocationAddressDto("Main Street", "Moscow", "Russia"));
+        var response = new LocationResponse(id,
+            "Stub location", 
+            new LocationAddressDto(Guid.CreateVersion7() ,"Main Street", "Moscow", "Russia"));
         return Ok(response);
     }
 

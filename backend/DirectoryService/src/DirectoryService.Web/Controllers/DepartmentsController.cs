@@ -1,4 +1,4 @@
-﻿using DirectoryService.Contracts.DepartmentsDto;
+﻿using DirectoryService.Contracts.Departments;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;

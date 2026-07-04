@@ -1,4 +1,4 @@
-﻿using DirectoryService.Contracts.PositionsDto;
+﻿using DirectoryService.Contracts.Positions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
