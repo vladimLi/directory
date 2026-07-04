@@ -24,7 +24,7 @@ public class LocationConfigurations: IEntityTypeConfiguration<Location>
         builder.Property(l => l.Address)
             .HasMaxLength(LengthConstants.Length500)
             .IsRequired()
-            .HasConversion(a => a.Value, a => LocationAddress.Create(a))
+            .HasConversion(a => a.Value,v => LocationAddress.Create(v))
             .HasColumnName("location_address");
         builder.Property(l => l.CreatedAt)
             .HasColumnName("created_at")
