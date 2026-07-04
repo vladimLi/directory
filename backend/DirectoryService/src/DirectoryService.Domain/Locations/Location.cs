@@ -14,17 +14,19 @@ public sealed class Location
     private Location(
         Guid id,
         string name,
-        string address)
+        string street,
+        string city,
+        string country)
     {
         Id = LocationId.Create(id);
         Name = LocationName.Create(name);
-        Address = LocationAddress.Create(address);
+        Address = LocationAddress.Create(street, city, country);
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Location Create(string name, string address)
+    public static Location Create(string name, string street, string city, string country)
     {
-        return new Location(Guid.CreateVersion7(), name, address);
+        return new Location(Guid.CreateVersion7(), name, street, city, country);
     }
 }

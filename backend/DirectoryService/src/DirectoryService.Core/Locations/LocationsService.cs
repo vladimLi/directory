@@ -45,12 +45,9 @@ public class LocationsService :ILocationsService
         
         //Создание сущности
         
-        var address = LocationAddress.Create(
-            request.Address.Street,
-            request.Address.City,
-            request.Address.Country);
+        var address = request.Address;
         
-        var location = Location.Create(request.Name, address.Value);
+        var location = Location.Create(request.Name, address.Street, address.City, address.Country);
         
         //Сохранение в БД
         
