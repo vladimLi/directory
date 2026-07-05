@@ -51,6 +51,12 @@ dotnet_diagnostic.CA1873.severity = none
 # CA1848:Использовать делегаты LoggerMessage
 dotnet_diagnostic.CA1848.severity = none
 
+# CA2000: Вызовите System.IDisposable.Dispose для объекта, созданного "CreateLoggerFactory()", прежде чем все ссылки на него
+dotnet_diagnostic.CA2000.severity = none
+
+# S125 : Remove this commented out code.
+dotnet_diagnostic.S125.severity = none
+
 # Правила строже, чем по умолчанию:
 dotnet_diagnostic.S1125.severity = error  # Redundant Boolean literal
 dotnet_diagnostic.S6673.severity = error  # Serilog template placeholder order

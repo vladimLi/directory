@@ -1,4 +1,6 @@
 using DirectoryService.Core.Locations;
+using DirectoryService.Infrastructure.Postgres.Database;
+using DirectoryService.Infrastructure.Postgres.Locations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +15,11 @@ public static class InfrastructureDependencyInjection
         var connectionString = configuration.GetConnectionString("AppDbContext")!;
         
         services.AddScoped<AppDbContext>(_ => new AppDbContext(connectionString));
-        services.AddScoped<ILocationsRepository, LocationsRepository>();
+
+        services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
+        
+        services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
+        //services.AddScoped<ILocationsRepository, NpgSqlLocationsRepository>();
         return services;
     }
 }
