@@ -36,10 +36,7 @@ public class LocationsService :ILocationsService
         }
         //Проверка валидности бизнес логики
         var locationName = LocationName.Create(request.Name);
-        if (string.IsNullOrEmpty(locationName.Value))
-        {
-            throw new ValidationException("Location name is required");
-        }
+        //Проверь LocationName Create возвращает LocationName
         var nameExists = await _repository.ExistsWithNameAsync(locationName, cancellationToken);
 
         if (nameExists)
