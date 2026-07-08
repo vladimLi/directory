@@ -1,6 +1,7 @@
 using Dapper;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.Locations;
+using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Infrastructure.Postgres.Database;
 
 namespace DirectoryService.Infrastructure.Postgres.Locations;
@@ -37,10 +38,10 @@ public class NpgSqlLocationsRepository : ILocationsRepository
         return location.Id.Value;
     }
 
-    public async Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken)
+    public async Task<bool> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken)
     {
         using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-
+        string name = locationName.Value;
         const string sql = """
                            SELECT COUNT(1)
                            FROM locations

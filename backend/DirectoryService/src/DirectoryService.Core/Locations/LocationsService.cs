@@ -35,8 +35,9 @@ public class LocationsService :ILocationsService
             throw new ValidationException(validationResult.Errors);
         }
         //Проверка валидности бизнес логики
+        LocationName locationName = LocationName.Create(request.Name);
         
-        var nameExists = await _repository.ExistsWithNameAsync(request.Name, cancellationToken);
+        var nameExists = await _repository.ExistsWithNameAsync(locationName, cancellationToken);
 
         if (nameExists)
         {

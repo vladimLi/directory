@@ -18,8 +18,8 @@ public static class InfrastructureDependencyInjection
 
         services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
         
-        services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
-        //services.AddScoped<ILocationsRepository, NpgSqlLocationsRepository>();
+        //services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
+        services.AddScoped<ILocationsRepository, NpgSqlLocationsRepository>();
         return services;
     }
 }

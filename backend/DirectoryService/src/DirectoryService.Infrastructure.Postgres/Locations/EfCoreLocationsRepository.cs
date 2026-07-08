@@ -20,9 +20,9 @@ public class EfCoreLocationsRepository: ILocationsRepository
         return location.Id.Value;
     }
 
-    public async Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken)
+    public async Task<bool> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken)
     {
         return await _context.Locations
-            .AnyAsync(x => x.Name == LocationName.Create(name), cancellationToken);
+            .AnyAsync(x => x.Name == locationName, cancellationToken);
     }
 }
