@@ -1,5 +1,6 @@
 using DirectoryService.Core.Departments;
 using DirectoryService.Domain.Departments;
+using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
 using Microsoft.EntityFrameworkCore;
@@ -30,15 +31,15 @@ public class EfCoreDepartmentsRepository: IDepartmentsRepository
         return department.Id.Value;
     }
 
-    public async Task<Department?> GetByIdAsync(Guid departmentId, CancellationToken cancellationToken)
+    public async Task<Department?> GetByIdAsync(DepartmentId departmentId, CancellationToken cancellationToken)
     {
         return await _context.Departments
-            .SingleOrDefaultAsync(d => d.Id.Value == departmentId, cancellationToken);
+            .SingleOrDefaultAsync(d => d.Id == departmentId, cancellationToken);
     }
 
-    public async Task<bool> LocationExistsAsync(LocationId locationId, CancellationToken cancellationToken)
+    public async Task<bool> LocationExistsAsync(IReadOnlyCollection<LocationId> locationIds, CancellationToken cancellationToken)
     {
         return await _context.Locations
-            .AnyAsync(l => l.Id == locationId, cancellationToken);
+            .CountAsync(l => locationIds.Contains(l.Id), cancellationToken) == locationIds.Count;
     }
 }

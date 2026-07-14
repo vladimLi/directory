@@ -1,5 +1,6 @@
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Domain.Departments;
+using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
 using FluentValidation;
@@ -32,27 +33,29 @@ public class DepartmentsService : IDepartmentsService
         {
             throw new ValidationException(validationResult.Errors);
         }
-
-        foreach (var requestLocation in request.LocationIds)
+        //Проверка валидности бизнес логики
+        
+        var locationIds = request.LocationIds.Select(l => LocationId.Create(l)).ToList();
+        
+        var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
+        
+        if (!isValid)
         {
-            LocationId locationId = LocationId.Create(requestLocation);
-            var isValid = await _repository.LocationExistsAsync(locationId, cancellationToken);
-            if (!isValid)
-            {
-                _logger.LogError("Missing location id: {RequestLocation}", requestLocation);
-                throw new InvalidOperationException("Some locations do not exist.");
-            }
+            throw new InvalidOperationException("Some locations do not exist.");
         }
-
         //Создание сущности
         Department? parentDepartment = null;
-
         if (request.ParentId is not null
             && request.ParentId != Guid.Empty)
         {
-            parentDepartment = await _repository.GetByIdAsync(request.ParentId.Value, cancellationToken);
+            var parentId = DepartmentId.Create(request.ParentId.Value);
+            parentDepartment = await _repository.GetByIdAsync(parentId, cancellationToken);
+            if (parentDepartment is null)
+            {
+                throw new InvalidOperationException("Parent department not found.");
+            }
         }
-
+        
         var department = Department.Create(
             request.Name,
             request.Slug,

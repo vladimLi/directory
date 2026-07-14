@@ -1,4 +1,5 @@
 using DirectoryService.Domain.Departments;
+using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
 
@@ -10,11 +11,12 @@ public interface IDepartmentsRepository
         Department department,
         IReadOnlyCollection<DepartmentLocation> departmentLocations,
         CancellationToken cancellationToken);
+    
     Task<Department?> GetByIdAsync(
-        Guid departmentId,
+        DepartmentId departmentId,
         CancellationToken cancellationToken);
 
     public Task<bool> LocationExistsAsync(
-        LocationId locationId,
+        IReadOnlyCollection<LocationId> locationIds,
         CancellationToken cancellationToken);
 }
