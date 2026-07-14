@@ -28,16 +28,12 @@ public sealed class Department
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
-    public static Department CreateRoot( string name, string slug)
-    {
-        return new Department(Guid.CreateVersion7(), name, slug, parentPath: null, parentId: null);
-    }
 
-    public static Department CreateChild(
+    public static Department Create(
         string name,
         string slug,
-        DepartmentPath parentPath,
-        DepartmentId parentId)
+        DepartmentPath? parentPath = null,
+        DepartmentId? parentId = null)
     {
         return new Department(Guid.CreateVersion7(), name, slug, parentPath, parentId);
     }
