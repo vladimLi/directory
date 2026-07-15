@@ -39,7 +39,5 @@ public class CreateLocationValidator: AbstractValidator<CreateLocationRequest>
             .WithMessage("Address street cannot be empty.")
             .MaximumLength(LengthConstants.Length500)
             .WithMessage($"Address street cannot exceed {LengthConstants.Length500} characters.");
-        
-        
     }
 }
