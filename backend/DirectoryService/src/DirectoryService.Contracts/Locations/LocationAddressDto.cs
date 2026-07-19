@@ -1,3 +1,3 @@
 ﻿namespace DirectoryService.Contracts.Locations;
 
-public record LocationAddressDto(Guid Id, string Street, string City, string Country);
+public record LocationAddressDto(string Street, string City, string Country);

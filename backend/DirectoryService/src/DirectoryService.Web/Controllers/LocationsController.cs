@@ -9,11 +9,12 @@ namespace DirectoryService.Web.Controllers;
 public class LocationsController : ControllerBase
 {
     private readonly ILocationsService _locationsService;
+
     public LocationsController(ILocationsService locationsService)
     {
         _locationsService = locationsService;
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateLocationRequest request,
@@ -34,9 +35,28 @@ public class LocationsController : ControllerBase
         }
 
         var response = new LocationResponse(id,
-            "Stub location", 
-            new LocationAddressDto(Guid.CreateVersion7() ,"Main Street", "Moscow", "Russia"));
+            "Stub location",
+            new LocationAddressDto("Main Street", "Moscow", "Russia"));
         return Ok(response);
+    }
+
+    [HttpPatch("name")]
+    public async Task<IActionResult> UpdateLocationName(
+        [FromServices] ILocationsService locationsService,
+        [FromBody] UpdateLocationNameRequest request,
+        CancellationToken cancellationToken)
+    {
+        var locationId = await _locationsService.UpdateLocationName(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = locationId }, locationId);
+    }
+    [HttpPatch("address")]
+    public async Task<IActionResult> UpdateLocationAddress(
+        [FromServices] ILocationsService locationsService,
+        [FromBody] UpdateLocationAddressRequest request,
+        CancellationToken cancellationToken)
+    {
+        var locationId = await _locationsService.UpdateLocationAddress(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = locationId }, locationId);
     }
 
     [HttpGet]

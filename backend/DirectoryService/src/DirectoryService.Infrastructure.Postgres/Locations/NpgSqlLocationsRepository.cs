@@ -1,4 +1,4 @@
-using Dapper;
+/*using Dapper;
 using DirectoryService.Core.Locations;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
@@ -52,4 +52,9 @@ public class NpgSqlLocationsRepository : ILocationsRepository
 
         return count > 0;
     }
-}
+
+    public Task Save(CancellationToken cancellationToken)
+    {
+       
+    }
+}*/

@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
@@ -16,7 +17,9 @@ public interface IDepartmentsRepository
         DepartmentId departmentId,
         CancellationToken cancellationToken);
 
-    public Task<bool> LocationExistsAsync(
+     Task<bool> LocationExistsAsync(
         IReadOnlyCollection<LocationId> locationIds,
         CancellationToken cancellationToken);
+
+     Task Save(CancellationToken cancellationToken);
 }
