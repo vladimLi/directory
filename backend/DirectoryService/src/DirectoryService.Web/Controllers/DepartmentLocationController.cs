@@ -14,7 +14,7 @@ public class DepartmentLocationController : ControllerBase
         _departmentLocationService = departmentLocationService;
     }
 
-    [HttpPost("department{departmentId:guid}/location/{locationId:guid}")]
+    [HttpPost("department/{departmentId:guid}/location/{locationId:guid}")]
     public async Task<IActionResult> Create(
         Guid departmentId,
         Guid locationId,
