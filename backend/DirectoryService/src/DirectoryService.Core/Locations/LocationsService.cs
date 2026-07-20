@@ -10,16 +10,22 @@ public class LocationsService :ILocationsService
 {
     private readonly ILocationsRepository _repository;
     private readonly ILogger<LocationsService> _logger;
-    private readonly IValidator<CreateLocationRequest> _validator;
+    private readonly IValidator<CreateLocationRequest> _createLocationRequestValidator;
+    private readonly IValidator<UpdateLocationNameRequest> _updateLocationNameValidator;
+    private readonly IValidator<UpdateLocationAddressRequest> _updateLocationAddressValidator;
     
 
     public LocationsService(
         ILocationsRepository repository,
-        IValidator<CreateLocationRequest> validator,
+        IValidator<CreateLocationRequest> createLocationRequestValidator,
+        IValidator<UpdateLocationNameRequest> updateLocationNameValidator,
+        IValidator<UpdateLocationAddressRequest> updateLocationAddressValidator,
         ILogger<LocationsService> logger)
     {
         _repository = repository;
-        _validator = validator;
+        _createLocationRequestValidator = createLocationRequestValidator;
+        _updateLocationNameValidator = updateLocationNameValidator;
+        _updateLocationAddressValidator = updateLocationAddressValidator;
         _logger = logger;
     }
     
@@ -28,7 +34,7 @@ public class LocationsService :ILocationsService
         CancellationToken cancellationToken)
     {
         //Проверка валидности входных данных
-        var validationResult = await _validator.ValidateAsync(request ,cancellationToken);
+        var validationResult = await _createLocationRequestValidator.ValidateAsync(request ,cancellationToken);
 
         if (!validationResult.IsValid)
         {
@@ -57,6 +63,58 @@ public class LocationsService :ILocationsService
         //Логирование
         
         _logger.LogInformation("Created location with id {LocationId}", location.Id);
+        return location.Id.Value;
+    }
+
+    public async Task<Guid> UpdateLocationName(UpdateLocationNameRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await _updateLocationNameValidator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
+        
+        var locationId = LocationId.Create(request.Id);
+        
+        var location = await _repository.GetByIdAsync(locationId, cancellationToken);
+
+        if (location == null)
+        {
+            throw new InvalidOperationException("Location not found.");
+        }
+
+        location.UpdateName(request.Name);
+        
+        await _repository.Save(cancellationToken);
+        
+        _logger.LogInformation("Update location name {LocationId}", location.Id.Value);
+        return location.Id.Value;
+    }
+
+    public async Task<Guid> UpdateLocationAddress(UpdateLocationAddressRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await _updateLocationAddressValidator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
+        
+        var locationId = LocationId.Create(request.Id);
+        
+        var location = await _repository.GetByIdAsync(locationId, cancellationToken);
+
+        if (location == null)
+        {
+            throw new InvalidOperationException("Location not found.");
+        }
+
+        location.UpdateAddress(request.Address.Street, request.Address.City, request.Address.Country);
+        
+        await _repository.Save(cancellationToken);
+        
+        _logger.LogInformation("Update location address {LocationId}", location.Id.Value);
         return location.Id.Value;
     }
 }

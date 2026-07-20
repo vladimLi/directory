@@ -5,8 +5,8 @@ namespace DirectoryService.Domain.Departments;
 public sealed class Department
 {
     public DepartmentId Id { get; } = null!;
-    public DepartmentName Name { get; } = null!;
-    public DepartmentSlug Slug { get; } = null!;
+    public DepartmentName Name { get; private set; } = null!;
+    public DepartmentSlug Slug { get; private set; } = null!;
     public DepartmentPath Path { get; } = null!;
     public DepartmentId? ParentId { get; }
     public DateTime CreatedAt { get; }
@@ -36,5 +36,16 @@ public sealed class Department
         DepartmentId? parentId = null)
     {
         return new Department(Guid.CreateVersion7(), name, slug, parentPath, parentId);
+    }
+
+    public void UpdateName(string name)
+    {
+        var newName = DepartmentName.Create(name);
+        Name =  newName;
+    }
+    public void UpdateSlug(string slug)
+    {
+        var newSlug = DepartmentSlug.Create(slug);
+        Slug =  newSlug;
     }
 }

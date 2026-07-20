@@ -23,7 +23,7 @@ public class DepartmentsController : ControllerBase
         var departmentId = await _departmentsService.Create(request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = departmentId }, departmentId);
     }
-
+    
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(
         [FromRoute] Guid id,
@@ -38,6 +38,27 @@ public class DepartmentsController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPatch("name")]
+    public async Task<IActionResult> UpdateDepartmentName(
+        [FromServices]  IDepartmentsService departmentsService,
+        [FromBody] UpdateDepartmentNameRequest request,
+        CancellationToken cancellationToken)
+    {
+        var departmentId =  await _departmentsService.UpdateDepartmentName(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = departmentId }, departmentId);
+    }
+    
+    [HttpPatch("slug")]
+    public async Task<IActionResult> UpdateDepartmentSlug(
+        [FromServices]  IDepartmentsService departmentsService,
+        [FromBody] UpdateDepartmentSlugRequest request,
+        CancellationToken cancellationToken)
+    {
+        var departmentId =  await _departmentsService.UpdateDepartmentSlug(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = departmentId }, departmentId);
+    }
+    
+    
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] GetDepartmentsRequest request,

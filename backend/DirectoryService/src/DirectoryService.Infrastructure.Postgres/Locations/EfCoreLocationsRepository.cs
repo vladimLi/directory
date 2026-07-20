@@ -25,4 +25,19 @@ public class EfCoreLocationsRepository: ILocationsRepository
         return await _context.Locations
             .AnyAsync(x => x.Name == locationName, cancellationToken);
     }
+
+    public async Task<Location?> GetByIdAsync(LocationId locationId, CancellationToken cancellationToken)
+    {
+        var location =  await _context.Locations
+            .SingleOrDefaultAsync(l => l.Id == locationId, cancellationToken);
+
+        if (location == null)
+        {
+            throw new KeyNotFoundException($"No location with id {locationId} found.");
+        }
+        return location;
+    }
+
+    public async Task Save(CancellationToken cancellationToken)
+        =>  await _context.SaveChangesAsync(cancellationToken);
 }

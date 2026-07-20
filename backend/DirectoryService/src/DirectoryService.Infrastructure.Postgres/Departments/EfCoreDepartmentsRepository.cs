@@ -31,15 +31,28 @@ public class EfCoreDepartmentsRepository: IDepartmentsRepository
         return department.Id.Value;
     }
 
-    public async Task<Department?> GetByIdAsync(DepartmentId departmentId, CancellationToken cancellationToken)
+    public async Task<Department?> GetByIdAsync(
+        DepartmentId departmentId, 
+        CancellationToken cancellationToken)
     {
-        return await _context.Departments
+        var department =  await _context.Departments
             .SingleOrDefaultAsync(d => d.Id == departmentId, cancellationToken);
+
+        if (department == null)
+        {
+            throw new KeyNotFoundException($"No department with id {departmentId}");
+        }
+        return department;
     }
 
-    public async Task<bool> LocationExistsAsync(IReadOnlyCollection<LocationId> locationIds, CancellationToken cancellationToken)
+    public async Task<bool> LocationExistsAsync(
+        IReadOnlyCollection<LocationId> locationIds,
+        CancellationToken cancellationToken)
     {
         return await _context.Locations
             .CountAsync(l => locationIds.Contains(l.Id), cancellationToken) == locationIds.Count;
     }
+
+    public async Task Save(CancellationToken cancellationToken)
+        =>  await _context.SaveChangesAsync(cancellationToken);
 }
