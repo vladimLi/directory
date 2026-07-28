@@ -1,8 +1,12 @@
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Core.Extensions;
+using DirectoryService.Core.Locations.Errors;
+using DirectoryService.Core.Locations.Errors.Exceptions;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace DirectoryService.Core.Locations;
 
@@ -37,18 +41,15 @@ public class LocationsService :ILocationsService
         var validationResult = await _createLocationRequestValidator.ValidateAsync(request ,cancellationToken);
 
         if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
+            throw new LocationValidationException(validationResult.ToErrors());
+        
         //Проверка валидности бизнес логики
         var locationName = LocationName.Create(request.Name);
         //Проверь LocationName Create возвращает LocationName
         var nameExists = await _repository.ExistsWithNameAsync(locationName, cancellationToken);
 
         if (nameExists)
-        {
-            throw new ArgumentException($"Location with name {request.Name} already exists", request.Name);
-        }
+            throw new LocationNameDuplicateException();
         
         //Создание сущности
         
@@ -71,18 +72,16 @@ public class LocationsService :ILocationsService
         var validationResult = await _updateLocationNameValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
+            throw new LocationValidationException(validationResult.ToErrors());
+        
         
         var locationId = LocationId.Create(request.Id);
         
         var location = await _repository.GetByIdAsync(locationId, cancellationToken);
 
         if (location == null)
-        {
-            throw new InvalidOperationException("Location not found.");
-        }
+            throw new LocationNotFoundException(locationId.Value);
+        
 
         location.UpdateName(request.Name);
         
@@ -97,18 +96,14 @@ public class LocationsService :ILocationsService
         var validationResult = await _updateLocationAddressValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
+            throw new LocationValidationException(validationResult.ToErrors());
         
         var locationId = LocationId.Create(request.Id);
         
         var location = await _repository.GetByIdAsync(locationId, cancellationToken);
 
         if (location == null)
-        {
-            throw new InvalidOperationException("Location not found.");
-        }
+            throw new LocationNotFoundException(locationId.Value);
 
         location.UpdateAddress(request.Address.Street, request.Address.City, request.Address.Country);
         

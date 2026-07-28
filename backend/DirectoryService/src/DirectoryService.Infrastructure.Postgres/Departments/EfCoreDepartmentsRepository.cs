@@ -1,4 +1,5 @@
 using DirectoryService.Core.Departments;
+using DirectoryService.Core.Departments.Errors.Exceptions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
@@ -39,9 +40,8 @@ public class EfCoreDepartmentsRepository: IDepartmentsRepository
             .SingleOrDefaultAsync(d => d.Id == departmentId, cancellationToken);
 
         if (department == null)
-        {
-            throw new KeyNotFoundException($"No department with id {departmentId}");
-        }
+            throw new DepartmentNotFoundException(departmentId.Value);
+        
         return department;
     }
 
