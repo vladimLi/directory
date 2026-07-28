@@ -1,4 +1,5 @@
 using DirectoryService.Core.Locations;
+using DirectoryService.Core.Locations.Errors.Exceptions;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -30,11 +31,7 @@ public class EfCoreLocationsRepository: ILocationsRepository
     {
         var location =  await _context.Locations
             .SingleOrDefaultAsync(l => l.Id == locationId, cancellationToken);
-
-        if (location == null)
-        {
-            throw new KeyNotFoundException($"No location with id {locationId} found.");
-        }
+        
         return location;
     }
 

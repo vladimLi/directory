@@ -57,6 +57,12 @@ dotnet_diagnostic.CA2000.severity = none
 # S125 : Remove this commented out code.
 dotnet_diagnostic.S125.severity = none
 
+# CA1707 : Идентификаторы не должны содержать символы подчеркивания
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1716 : Идентификаторы не должны совпадать с ключевыми словами
+dotnet_diagnostic.CA1716.severity = none
+
 # Правила строже, чем по умолчанию:
 dotnet_diagnostic.S1125.severity = error  # Redundant Boolean literal
 dotnet_diagnostic.S6673.severity = error  # Serilog template placeholder order

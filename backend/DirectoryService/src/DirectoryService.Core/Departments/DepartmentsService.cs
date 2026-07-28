@@ -1,4 +1,6 @@
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Departments.Errors.Exceptions;
+using DirectoryService.Core.Extensions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
@@ -36,9 +38,8 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _createDepartmentRequest.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
+            throw new DepartmentValidationException(validationResult.ToErrors());
+        
         //Проверка валидности бизнес логики
 
         var locationIds = request.LocationIds.Select(l => LocationId.Create(l)).ToList();
@@ -46,9 +47,7 @@ public class DepartmentsService : IDepartmentsService
         var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
 
         if (!isValid)
-        {
-            throw new InvalidOperationException("Some locations do not exist.");
-        }
+            throw new LocationExistsException();
 
         //Создание сущности
         Department? parentDepartment = null;
@@ -58,9 +57,7 @@ public class DepartmentsService : IDepartmentsService
             var parentId = DepartmentId.Create(request.ParentId.Value);
             parentDepartment = await _repository.GetByIdAsync(parentId, cancellationToken);
             if (parentDepartment is null)
-            {
-                throw new InvalidOperationException("Parent department not found.");
-            }
+               throw new ParentDepartmentNotFoundException();
         }
 
         var department = Department.Create(
@@ -86,18 +83,14 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _updateDepartmentNameValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
+            throw new DepartmentValidationException(validationResult.ToErrors());
         
         var departmentId = DepartmentId.Create(request.Id);
         
         var department = await _repository.GetByIdAsync(departmentId, cancellationToken);
 
         if (department == null)
-        {
-            throw new InvalidOperationException("Department not found.");
-        }
+            throw new DepartmentNotFoundException(departmentId.Value);
 
         department.UpdateName(request.Name);
         
@@ -115,18 +108,14 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _updateDepartmentSlugValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-        {
-            throw new ValidationException(validationResult.Errors);
-        }
+            throw new DepartmentValidationException(validationResult.ToErrors());
         
         var departmentId = DepartmentId.Create(request.Id);
         
         var department = await _repository.GetByIdAsync(departmentId, cancellationToken);
 
         if (department == null)
-        {
-            throw new InvalidOperationException("Department not found.");
-        }
+            throw new DepartmentNotFoundException(departmentId.Value);
 
         department.UpdateSlug(request.Slug);
         
