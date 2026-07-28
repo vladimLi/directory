@@ -14,10 +14,6 @@ public class LocationExistsException : BadRequestException
     {
     }
 
-    public LocationExistsException(Guid[] message) : base()
-    {
-    }
-
     public LocationExistsException(string? message) : base(message)
     {
     }

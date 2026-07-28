@@ -8,10 +8,10 @@ public static partial class Fails
     {
         public static Error DepartmentLocationExistsException()
             => Error.Conflict("relation.department.location.exists",
-                "There is already a connection between the department and the location");
+                "Между отделом и местоположением уже существует связь");
         
         public static Error DepartmentLocationNotFoundException()
             => Error.NotFound("relation.department.location.not.found", 
-                $"No connection between department and location found", null);
+                $"Не найдено связи между отделом и местоположением", null);
     }
 }
