@@ -44,7 +44,17 @@ public class DepartmentsService : IDepartmentsService
         
         //Проверка валидности бизнес логики
 
-        var locationIds = request.LocationIds.Select(l => LocationId.Create(l).Value).ToList();
+        var locationIds = new List<LocationId>();
+
+        foreach (var rawId in request.LocationIds)
+        {
+            var idResult = LocationId.Create(rawId);
+
+            if (idResult.IsFailure)
+                return idResult.Error; // корректный Failure → 400
+
+            locationIds.Add(idResult.Value);
+        }
 
         var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
 
@@ -73,8 +83,17 @@ public class DepartmentsService : IDepartmentsService
         if(department.IsFailure)
             return department.Error;
         
-        var departmentLocations = request.LocationIds
-            .Select(l => DepartmentLocation.Create(department.Value.Id.Value, l).Value).ToList();
+        var departmentLocations = new List<DepartmentLocation>();
+
+        foreach (var rawId in request.LocationIds)
+        {
+            var dlResult = DepartmentLocation.Create(department.Value.Id.Value, rawId);
+
+            if (dlResult.IsFailure)
+                return dlResult.Error; // корректный Failure → 400/404/409
+
+            departmentLocations.Add(dlResult.Value);
+        }
         //Сохранение в БД
         await _repository.AddAsync(department.Value, departmentLocations, cancellationToken);
         //Логирование

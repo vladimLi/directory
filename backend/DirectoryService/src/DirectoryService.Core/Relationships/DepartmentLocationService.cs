@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using DirectoryService.Core.Relationships.Errors;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
@@ -88,8 +89,11 @@ public class DepartmentLocationService : IDepartmentLocationService
         // 3. Проверка существующей связи
         var linkExists = await _repository
             .ExistsAsync(departmentId.Value, locationId.Value, cancellationToken);
-        if (linkExists.IsFailure) 
-            return linkExists.Error;
+        if (!linkExists.IsFailure)
+        {
+            // связи нет → not found
+            return Fails.DepartmentLocationError.DepartmentLocationNotFoundException();
+        }
 
         var departmentLocation = await _repository
             .DeleteAsync(departmentId.Value, locationId.Value, cancellationToken);

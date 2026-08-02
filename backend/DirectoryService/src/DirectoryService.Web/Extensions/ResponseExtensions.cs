@@ -23,7 +23,7 @@ public static class ResponseExtensions
             ? StatusCodes.Status500InternalServerError
             : GetStatusCodeFromErrorType(distinctErrorTypes.FirstOrDefault());
 
-        return new ObjectResult(statusCode)
+        return new ObjectResult(failure)
         {
             StatusCode = statusCode
         };
