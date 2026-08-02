@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Extensions;
+using DirectoryService.Core.Locations.Errors;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
@@ -48,8 +49,12 @@ public class LocationsService : ILocationsService
             return locationName.Error;
         //Проверь LocationName Create возвращает LocationName
         var nameExists = await _repository.ExistsWithNameAsync(locationName.Value, cancellationToken);
+
         if (nameExists.IsFailure)
             return nameExists.Error;
+        
+        if (nameExists.Value)
+            return Fails.LocationsError.LocationNameDuplicateException();
 
         //Создание сущности
 
@@ -84,7 +89,9 @@ public class LocationsService : ILocationsService
         var result = location.Value.UpdateName(request.Name);
         if (result.IsFailure)
             return result.Error;
-        await _repository.Save(cancellationToken);
+        var saveResult = await _repository.Save(cancellationToken);
+        if(saveResult.IsFailure)
+            return saveResult.Error;
         _logger.LogInformation("Update location name {LocationId}", location.Value.Id.Value);
         return location.Value.Id.Value;
     }
@@ -104,11 +111,14 @@ public class LocationsService : ILocationsService
         if (location.IsFailure)
             return location.Error;
 
-        var result = location.Value.UpdateAddress(request.Address.Street, request.Address.City, request.Address.Country);
+        var result =
+            location.Value.UpdateAddress(request.Address.Street, request.Address.City, request.Address.Country);
         if (result.IsFailure)
             return result.Error;
-        
-        await _repository.Save(cancellationToken);
+
+        var saveResult = await _repository.Save(cancellationToken);
+        if(saveResult.IsFailure)
+            return saveResult.Error;
 
         _logger.LogInformation("Update location address {LocationId}", location.Value.Id.Value);
         return location.Value.Id.Value;

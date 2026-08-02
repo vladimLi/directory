@@ -56,8 +56,9 @@ public class DepartmentLocationService : IDepartmentLocationService
         if (departmentLocation.IsFailure)
             return departmentLocation.Error;
         //Сохранение в БД
-        await _repository.AddAsync(departmentLocation.Value, cancellationToken);
-
+        var result = await _repository.AddAsync(departmentLocation.Value, cancellationToken);
+        if(result.IsFailure)
+            return result.Error;
         //Логирование
         _logger.LogInformation("Created DepartmentLocation with id {DepartmentLocationId}", departmentLocation.Value.Id.Value);
         return departmentLocation.Value.Id.Value;
@@ -87,17 +88,19 @@ public class DepartmentLocationService : IDepartmentLocationService
             return locationExists.Error;
 
         // 3. Проверка существующей связи
-        var linkExists = await _repository
-            .ExistsAsync(departmentId.Value, locationId.Value, cancellationToken);
-        if (!linkExists.IsFailure)
-        {
-            // связи нет → not found
+        var linkExists = await _repository.ExistsAsync(departmentId.Value, locationId.Value, cancellationToken);
+        
+        if (linkExists.IsFailure)
+            return linkExists.Error;
+        
+        if (!linkExists.Value)
             return Fails.DepartmentLocationError.DepartmentLocationNotFoundException();
-        }
 
         var departmentLocation = await _repository
             .DeleteAsync(departmentId.Value, locationId.Value, cancellationToken);
-
+        if(departmentLocation.IsFailure)
+            return departmentLocation.Error;
+        
         _logger.LogInformation("Deleted DepartmentLocation with id {DepartmentLocationId}", departmentLocation);
 
         return departmentLocation;

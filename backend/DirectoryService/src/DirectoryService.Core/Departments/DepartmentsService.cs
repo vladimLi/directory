@@ -98,7 +98,9 @@ public class DepartmentsService : IDepartmentsService
             departmentLocations.Add(dlResult.Value);
         }
         //Сохранение в БД
-        await _repository.AddAsync(department.Value, departmentLocations, cancellationToken);
+        var result = await _repository.AddAsync(department.Value, departmentLocations, cancellationToken);
+        if(result.IsFailure)
+            return result.Error;
         //Логирование
         _logger.LogInformation("Created department with id {DepartmentId}", department.Value.Id.Value);
         return department.Value.Id.Value;
@@ -126,7 +128,9 @@ public class DepartmentsService : IDepartmentsService
         if (result.IsFailure)
             return result.Error;
         
-        await _repository.Save(cancellationToken);
+        var saveResult  = await _repository.Save(cancellationToken);
+        if(saveResult .IsFailure)
+            return saveResult.Error;
         
         _logger.LogInformation("update department name {DepartmentId}", department.Value.Id);
         return department.Value.Id.Value;
@@ -154,7 +158,9 @@ public class DepartmentsService : IDepartmentsService
         if (result.IsFailure)
             return result.Error;
         
-        await _repository.Save(cancellationToken);
+        var saveResult = await _repository.Save(cancellationToken);
+        if(saveResult.IsFailure)
+            return saveResult.Error;
         
         _logger.LogInformation("update department slug {DepartmentId}", department.Value.Id.Value);
         return department.Value.Id.Value;
