@@ -78,7 +78,7 @@ public class EfCoreDepartmentLocationRepository : IDepartmentLocationRepository
     {
         bool exists = await _context.DepartmentLocation
             .AnyAsync(dl => dl.DepartmentId == departmentId && dl.LocationId == locationId, cancellationToken);
-        if (!exists)
+        if (exists)
             return Result.Failure<bool, Failure>(Fails.DepartmentLocationError.DepartmentLocationExistsException());
 
         return Result.Success<bool, Failure>(exists);

@@ -90,7 +90,7 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _updateDepartmentNameValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            validationResult.ToErrors();
+            return validationResult.ToErrors();
         
         var departmentId = DepartmentId.Create(request.Id);
         if(departmentId.IsFailure)
@@ -118,7 +118,7 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _updateDepartmentSlugValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            validationResult.ToErrors();
+            return validationResult.ToErrors();
         
         var departmentId = DepartmentId.Create(request.Id);
         if(departmentId.IsFailure)

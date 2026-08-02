@@ -70,7 +70,7 @@ public class LocationsService : ILocationsService
         var validationResult = await _updateLocationNameValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            validationResult.ToErrors();
+            return validationResult.ToErrors();
 
         var locationId = LocationId.Create(request.Id);
         if (locationId.IsFailure)
@@ -90,7 +90,7 @@ public class LocationsService : ILocationsService
         var validationResult = await _updateLocationAddressValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            validationResult.ToErrors();
+            return validationResult.ToErrors();
 
         var locationId = LocationId.Create(request.Id);
         if (locationId.IsFailure)

@@ -9,7 +9,7 @@ public static class ResponseExtensions
     {
         if (!failure.Any())
         {
-            return new ObjectResult(null)
+            return new ObjectResult(failure)
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
             };

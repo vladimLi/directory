@@ -44,9 +44,10 @@ public class EfCoreLocationsRepository: ILocationsRepository
         bool exists =  await _context.Locations
             .AnyAsync(x => x.Name == locationName, cancellationToken);
 
-        if (!exists)
+        if (exists)
             return Result.Failure<bool, Failure>(
-                Fails.LocationsError.LocationNameDuplicateException());
+                Fails.LocationsError.LocationNameDuplicateException()
+            );
         
         return Result.Success<bool, Failure>(exists);
     }
