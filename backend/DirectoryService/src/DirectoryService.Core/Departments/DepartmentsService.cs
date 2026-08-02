@@ -63,16 +63,19 @@ public class DepartmentsService : IDepartmentsService
 
         //Создание сущности
         var parentDepartment = new Result<Department, Failure>();
-        if (request.ParentId is not null
-            && request.ParentId != Guid.Empty)
+
+        if (request.ParentId is not null && request.ParentId != Guid.Empty)
         {
             var parentId = DepartmentId.Create(request.ParentId.Value);
-            if(parentId.IsFailure)
+            if (parentId.IsFailure)
                 return parentId.Error;
+
             parentDepartment = await _repository.GetByIdAsync(parentId.Value, cancellationToken);
+
             if (parentDepartment.IsFailure)
-               return Fails.DepartmentError.ParentDepartmentNotFoundException(parentDepartment.Value.Id.Value);
+                return Fails.DepartmentError.ParentDepartmentNotFoundException(parentId.Value.Value);
         }
+
 
         var department = Department.Create(
             request.Name,

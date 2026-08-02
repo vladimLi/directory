@@ -58,10 +58,13 @@ public class LocationsService : ILocationsService
         if (location.IsFailure)
             return location.Error;
         //Сохранение в БД
-        await _repository.AddAsync(location.Value, cancellationToken);
-        //Логирование
-        _logger.LogInformation("Created location with id {LocationId}", location.Value.Id);
-        return location.Value.Id.Value;
+        var saveResult = await _repository.AddAsync(location.Value, cancellationToken);
+
+        if (saveResult.IsFailure)
+            return saveResult.Error;
+
+        _logger.LogInformation("Created location with id {LocationId}", location.Value.Id.Value);
+        return saveResult.Value;
     }
 
     public async Task<Result<Guid, Failure>> UpdateLocationName(UpdateLocationNameRequest request,
