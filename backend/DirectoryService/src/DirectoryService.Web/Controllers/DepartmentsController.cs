@@ -1,5 +1,6 @@
 ﻿using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Departments;
+using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -12,18 +13,18 @@ public class DepartmentsController : ControllerBase
 
     public DepartmentsController(IDepartmentsService departmentsService)
     {
-        _departmentsService =  departmentsService;
+        _departmentsService = departmentsService;
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
-        var departmentId = await _departmentsService.Create(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = departmentId }, departmentId);
+        var result = await _departmentsService.Create(request, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
-    
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(
         [FromRoute] Guid id,
@@ -40,25 +41,25 @@ public class DepartmentsController : ControllerBase
 
     [HttpPatch("name")]
     public async Task<IActionResult> UpdateDepartmentName(
-        [FromServices]  IDepartmentsService departmentsService,
+        [FromServices] IDepartmentsService departmentsService,
         [FromBody] UpdateDepartmentNameRequest request,
         CancellationToken cancellationToken)
     {
-        var departmentId =  await _departmentsService.UpdateDepartmentName(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = departmentId }, departmentId);
+        var result = await _departmentsService.UpdateDepartmentName(request, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
-    
+
     [HttpPatch("slug")]
     public async Task<IActionResult> UpdateDepartmentSlug(
-        [FromServices]  IDepartmentsService departmentsService,
+        [FromServices] IDepartmentsService departmentsService,
         [FromBody] UpdateDepartmentSlugRequest request,
         CancellationToken cancellationToken)
     {
-        var departmentId =  await _departmentsService.UpdateDepartmentSlug(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = departmentId }, departmentId);
+        var result = await _departmentsService.UpdateDepartmentSlug(request, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
-    
-    
+
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] GetDepartmentsRequest request,

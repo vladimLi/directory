@@ -1,4 +1,7 @@
-﻿namespace DirectoryService.Domain.Positions.ValueObjects;
+﻿using CSharpFunctionalExtensions;
+using Shared;
+
+namespace DirectoryService.Domain.Positions.ValueObjects;
 
 public record PositionId
 {
@@ -6,11 +9,11 @@ public record PositionId
 
     private PositionId(Guid value) => Value = value;
 
-    public static PositionId Create(Guid value)
+    public static Result<PositionId, Failure> Create(Guid value)
     {
         if (value == Guid.Empty)
-            throw new ArgumentException("Value cannot be empty", nameof(value));
+            return GeneralErrors.ValueIsEmpty("position.id");
 
-        return new(value);
+        return new PositionId(value);
     }
 }

@@ -1,5 +1,6 @@
+using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Departments.Errors.Exceptions;
+using DirectoryService.Core.Departments.Errors;
 using DirectoryService.Core.Extensions;
 using DirectoryService.Domain.Departments;
 using DirectoryService.Domain.Departments.ValueObjects;
@@ -7,6 +8,7 @@ using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace DirectoryService.Core.Departments;
 
@@ -32,50 +34,55 @@ public class DepartmentsService : IDepartmentsService
         _logger = logger;
     }
 
-    public async Task<Guid> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Guid,Failure>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
         //Проверка валидности входных данных
         var validationResult = await _createDepartmentRequest.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            throw new DepartmentValidationException(validationResult.ToErrors());
+            return validationResult.ToErrors();
         
         //Проверка валидности бизнес логики
 
-        var locationIds = request.LocationIds.Select(l => LocationId.Create(l)).ToList();
+        var locationIds = request.LocationIds.Select(l => LocationId.Create(l).Value).ToList();
 
         var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
 
-        if (!isValid)
-            throw new LocationExistsException();
+        if (isValid.IsFailure)
+            return isValid.Error;
 
         //Создание сущности
-        Department? parentDepartment = null;
+        var parentDepartment = new Result<Department, Failure>();
         if (request.ParentId is not null
             && request.ParentId != Guid.Empty)
         {
             var parentId = DepartmentId.Create(request.ParentId.Value);
-            parentDepartment = await _repository.GetByIdAsync(parentId, cancellationToken);
-            if (parentDepartment is null)
-               throw new ParentDepartmentNotFoundException();
+            if(parentId.IsFailure)
+                return parentId.Error;
+            parentDepartment = await _repository.GetByIdAsync(parentId.Value, cancellationToken);
+            if (parentDepartment.IsFailure)
+               return Fails.DepartmentError.ParentDepartmentNotFoundException(parentDepartment.Value.Id.Value);
         }
 
         var department = Department.Create(
             request.Name,
             request.Slug,
-            parentDepartment?.Path,
-            parentDepartment?.Id
+            parentDepartment.Value?.Path,
+            parentDepartment.Value?.Id
         );
+        if(department.IsFailure)
+            return department.Error;
+        
         var departmentLocations = request.LocationIds
-            .Select(l => DepartmentLocation.Create(department.Id.Value, l)).ToList();
+            .Select(l => DepartmentLocation.Create(department.Value.Id.Value, l).Value).ToList();
         //Сохранение в БД
-        await _repository.AddAsync(department, departmentLocations, cancellationToken);
+        await _repository.AddAsync(department.Value, departmentLocations, cancellationToken);
         //Логирование
-        _logger.LogInformation("Created department with id {DepartmentId}", department.Id.Value);
-        return department.Id.Value;
+        _logger.LogInformation("Created department with id {DepartmentId}", department.Value.Id.Value);
+        return department.Value.Id.Value;
     }
 
-    public async Task<Guid> UpdateDepartmentName(
+    public async Task<Result<Guid,Failure>> UpdateDepartmentName(
         UpdateDepartmentNameRequest request,
         CancellationToken cancellationToken)
     {
@@ -83,24 +90,27 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _updateDepartmentNameValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            throw new DepartmentValidationException(validationResult.ToErrors());
+            validationResult.ToErrors();
         
         var departmentId = DepartmentId.Create(request.Id);
+        if(departmentId.IsFailure)
+            return departmentId.Error;
         
-        var department = await _repository.GetByIdAsync(departmentId, cancellationToken);
+        var department = await _repository.GetByIdAsync(departmentId.Value, cancellationToken);
+        if (department.IsFailure)
+            return department.Error;
 
-        if (department == null)
-            throw new DepartmentNotFoundException(departmentId.Value);
-
-        department.UpdateName(request.Name);
+        var result = department.Value.UpdateName(request.Name);
+        if (result.IsFailure)
+            return result.Error;
         
         await _repository.Save(cancellationToken);
         
-        _logger.LogInformation("update department name {DepartmentId}", department.Id.Value);
-        return department.Id.Value;
+        _logger.LogInformation("update department name {DepartmentId}", department.Value.Id);
+        return department.Value.Id.Value;
     }
     
-    public async Task<Guid> UpdateDepartmentSlug(
+    public async Task<Result<Guid,Failure>> UpdateDepartmentSlug(
         UpdateDepartmentSlugRequest request,
         CancellationToken cancellationToken)
     {
@@ -108,20 +118,23 @@ public class DepartmentsService : IDepartmentsService
         var validationResult = await _updateDepartmentSlugValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
-            throw new DepartmentValidationException(validationResult.ToErrors());
+            validationResult.ToErrors();
         
         var departmentId = DepartmentId.Create(request.Id);
+        if(departmentId.IsFailure)
+            return departmentId.Error;
         
-        var department = await _repository.GetByIdAsync(departmentId, cancellationToken);
+        var department = await _repository.GetByIdAsync(departmentId.Value, cancellationToken);
+        if (department.IsFailure)
+            return department.Error;
 
-        if (department == null)
-            throw new DepartmentNotFoundException(departmentId.Value);
-
-        department.UpdateSlug(request.Slug);
+        var result = department.Value.UpdateSlug(request.Slug);
+        if (result.IsFailure)
+            return result.Error;
         
         await _repository.Save(cancellationToken);
         
-        _logger.LogInformation("update department slug {DepartmentId}", department.Id.Value);
-        return department.Id.Value;
+        _logger.LogInformation("update department slug {DepartmentId}", department.Value.Id.Value);
+        return department.Value.Id.Value;
     }
 }

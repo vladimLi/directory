@@ -1,5 +1,7 @@
 
+using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Positions.ValueObjects;
+using Shared;
 
 namespace DirectoryService.Domain.Positions
 {
@@ -11,16 +13,24 @@ namespace DirectoryService.Domain.Positions
         public DateTime UpdatedAt { get; }
         //EF Core
         public Position(){}
-        private Position(Guid id, string name)
+        private Position(PositionId id, PositionName name)
         {
-            Id = PositionId.Create(id);
-            Name = PositionName.Create(name);
+            Id = id;
+            Name = name;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
-        public static Position Create(string name)
+        public static Result<Position,Failure> Create(string name)
         {
-            return new(Guid.CreateVersion7(), name);
+            var positionId = PositionId.Create(Guid.CreateVersion7());
+            if (positionId.IsFailure)
+                return positionId.Error;
+            
+            var positionName =  PositionName.Create(name);
+            if (positionName.IsFailure)
+                return positionName.Error;
+            
+            return new Position(positionId.Value, positionName.Value);
         }
     }
 }

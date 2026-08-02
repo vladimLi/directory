@@ -1,4 +1,7 @@
-﻿namespace DirectoryService.Domain.Locations.ValueObjects;
+﻿using CSharpFunctionalExtensions;
+using Shared;
+
+namespace DirectoryService.Domain.Locations.ValueObjects;
 
 public sealed record LocationName
 {
@@ -6,12 +9,12 @@ public sealed record LocationName
 
     private LocationName(string value) => Value = value;
 
-    public static LocationName Create(string value)
+    public static Result<LocationName,Failure> Create(string value)
     {
         if(string.IsNullOrEmpty(value))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+            return GeneralErrors.VauleIsNullOrEmpty("location.name");
         if (value.Length > LengthConstants.Length50)
-            throw new ArgumentException("Value is too long.", nameof(value));
-        return new(value);
+            return GeneralErrors.ValueLengthIsInvalid("location.name");
+        return new LocationName(value);
     }
 }

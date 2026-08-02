@@ -14,17 +14,17 @@ public class LocationConfigurations: IEntityTypeConfiguration<Location>
         builder.HasKey(l => l.Id)
             .HasName("pk_locations");
         builder.Property(l => l.Id)
-            .HasConversion(id => id.Value, g => LocationId.Create(g))
+            .HasConversion(id => id.Value, g => LocationId.Create(g).Value)
             .HasColumnName("id");
         builder.Property(l => l.Name)
             .IsRequired()
-            .HasConversion(n => n.Value, n => LocationName.Create(n))
+            .HasConversion(n => n.Value, n => LocationName.Create(n).Value)
             .HasMaxLength(LengthConstants.Length50)
             .HasColumnName("location_name");
         builder.Property(l => l.Address)
             .HasMaxLength(LengthConstants.Length500)
             .IsRequired()
-            .HasConversion(a => a.Value,v => LocationAddress.Create(v))
+            .HasConversion(a => a.Value,v => LocationAddress.Create(v).Value)
             .HasColumnName("location_address");
         builder.Property(l => l.CreatedAt)
             .HasColumnName("created_at")

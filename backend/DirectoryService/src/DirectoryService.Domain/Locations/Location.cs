@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Locations.ValueObjects;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Locations.ValueObjects;
+using Shared;
 
 namespace DirectoryService.Domain.Locations;
 
@@ -8,39 +10,61 @@ public sealed class Location
     public LocationName Name { get; private set; } = null!;
     public LocationAddress Address { get; private set; } = null!;
     public DateTime CreatedAt { get; }
+
     public DateTime UpdatedAt { get; }
+
     //EF Core
-    public Location(){}
+    private Location() { }
+
     private Location(
-        Guid id,
-        string name,
-        string street,
-        string city,
-        string country)
+        LocationId id,
+        LocationName name,
+        LocationAddress address)
     {
-        Id = LocationId.Create(id);
-        Name = LocationName.Create(name);
-        Address = LocationAddress.Create(street, city, country);
+        Id = id;
+        Name = name;
+        Address = address;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Location Create(string name, string street, string city, string country)
+    public static Result<Location, Failure> Create(string name, string street, string city, string country)
     {
-        return new Location(Guid.CreateVersion7(), name, street, city, country);
+        var locationId = LocationId.Create(Guid.CreateVersion7());
+        if (locationId.IsFailure)
+            return locationId.Error;
+
+        var locationName = LocationName.Create(name);
+        if (locationName.IsFailure)
+            return locationName.Error;
+
+        var locationAddress = LocationAddress.Create(street, city, country);
+        if (locationAddress.IsFailure)
+            return locationAddress.Error;
+
+        return new Location(locationId.Value,
+            locationName.Value,
+            locationAddress.Value);
     }
 
-    public void UpdateName(string name)
+    public UnitResult<Failure> UpdateName(string name)
     {
         var newName = LocationName.Create(name);
-        Name = newName;
+        if (newName.IsFailure)
+            return newName;
+        Name = newName.Value;
+        return UnitResult.Success<Failure>();
     }
-    public void UpdateAddress(
+
+    public UnitResult<Failure> UpdateAddress(
         string street,
         string city,
         string country)
     {
         var newAddress = LocationAddress.Create(street, city, country);
-        Address = newAddress;
+        if (newAddress.IsFailure)
+            return newAddress;
+        Address = newAddress.Value;
+        return UnitResult.Success<Failure>();
     }
 }

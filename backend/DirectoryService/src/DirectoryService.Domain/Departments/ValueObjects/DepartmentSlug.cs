@@ -1,4 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using CSharpFunctionalExtensions;
+using Shared;
 
 namespace DirectoryService.Domain.Departments.ValueObjects;
 
@@ -10,22 +12,21 @@ public sealed partial record DepartmentSlug
 
     private DepartmentSlug(string value) =>  Value = value;
 
-    public static DepartmentSlug Create(string value)
+    public static Result<DepartmentSlug,Failure> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+            return GeneralErrors.VauleIsNullOrEmpty("department.slug");
         
         string normalized = value.Trim().ToLowerInvariant();
 
-        if(normalized.Length < MinLength || normalized.Length > MaxLength)
-            throw new ArgumentException(
-                $"Value must be between {MinLength} and {MaxLength} characters long.",
-                nameof(value));
+        if (normalized.Length < MinLength || normalized.Length > MaxLength)
+            return GeneralErrors.ValueLengthIsInvalid("department.slug");
+
         if (!SlugPattern().IsMatch(normalized))
-            throw new ArgumentException(
-                "Value must start and end with an alphanumeric character and can contain hyphens in between.",
-                nameof(value));
-        return new(normalized);
+            return GeneralErrors.ConditionIsInvalid("Значение должно начинаться и заканчиваться" +
+                                                    " буквенно-цифровым символом и может содержать дефисы между ними.",
+                "slug");
+        return new DepartmentSlug(normalized);
     }
     [GeneratedRegex(
     "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",

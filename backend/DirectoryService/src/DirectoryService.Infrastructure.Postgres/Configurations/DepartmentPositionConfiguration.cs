@@ -18,13 +18,13 @@ public class DepartmentPositionConfiguration:IEntityTypeConfiguration<Department
             .HasName("pk_department_positions");
 
         builder.Property(dp => dp.Id)
-            .HasConversion(id => id.Value, g => DepartmentPositionId.Create(g))
+            .HasConversion(id => id.Value, g => DepartmentPositionId.Create(g).Value)
             .HasColumnName("id");
         builder.Property(dp => dp.DepartmentId)
-            .HasConversion(id => id.Value, g => DepartmentId.Create(g))
+            .HasConversion(id => id.Value, g => DepartmentId.Create(g).Value)
             .HasColumnName("department_id");
         builder.Property(dp => dp.PositionId)
-            .HasConversion(id => id.Value, g => PositionId.Create(g))
+            .HasConversion(id => id.Value, g => PositionId.Create(g).Value)
             .HasColumnName("position_id");
         
         builder.HasOne<Department>()

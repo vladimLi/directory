@@ -1,4 +1,5 @@
 using DirectoryService.Core.Relationships;
+using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -21,13 +22,13 @@ public class DepartmentLocationController : ControllerBase
         CancellationToken cancellationToken,
         bool isPrimary = false)
     {
-        var departmentLocationId = await _departmentLocationService.Create(
+        var result = await _departmentLocationService.Create(
             departmentId,
             locationId,
             cancellationToken,
             isPrimary);
 
-        return CreatedAtAction(nameof(GetById), new { id = departmentLocationId }, departmentLocationId);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
 
     [HttpGet("department-location/{id:guid}")]
@@ -49,7 +50,7 @@ public class DepartmentLocationController : ControllerBase
         Guid locationId,
         CancellationToken cancellationToken)
     {
-        var departmentLocationId = await _departmentLocationService.Delete(departmentId, locationId, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = departmentLocationId }, departmentLocationId);
+        var result = await _departmentLocationService.Delete(departmentId, locationId, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
 }

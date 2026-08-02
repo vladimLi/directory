@@ -17,16 +17,14 @@ public class ExceptionMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-#pragma warning disable CA1031
         try
         {
             await _next(httpContext);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
             await HandleExceptionAsync(httpContext, ex);
         }
-#pragma warning restore CA1031
     }
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)

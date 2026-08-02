@@ -5,7 +5,7 @@ namespace DirectoryService.Core.Relationships.Errors.Exceptions;
 public class DepartmentLocationNotFoundException : NotFoundException
 {
     public DepartmentLocationNotFoundException()
-        : base([Fails.DepartmentLocationError.DepartmentLocationNotFoundException()])
+        : base(Fails.DepartmentLocationError.DepartmentLocationNotFoundException())
     {
     }
 
@@ -19,6 +19,10 @@ public class DepartmentLocationNotFoundException : NotFoundException
     }
 
     public DepartmentLocationNotFoundException(string? message, Exception? innerException) : base(message, innerException)
+    {
+    }
+
+    protected DepartmentLocationNotFoundException(Shared.Failure failure) : base(failure)
     {
     }
 }

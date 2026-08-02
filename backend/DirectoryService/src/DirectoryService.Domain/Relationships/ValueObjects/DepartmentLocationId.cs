@@ -1,4 +1,7 @@
-﻿namespace DirectoryService.Domain.Relationships.ValueObjects;
+﻿using CSharpFunctionalExtensions;
+using Shared;
+
+namespace DirectoryService.Domain.Relationships.ValueObjects;
 
 public record DepartmentLocationId
 {
@@ -6,11 +9,11 @@ public record DepartmentLocationId
 
     private DepartmentLocationId(Guid value) => Value = value;
 
-    public static DepartmentLocationId Create(Guid value)
+    public static Result<DepartmentLocationId,Failure> Create(Guid value)
     {
         if (value == Guid.Empty)
-            throw new ArgumentException("Value cannot be empty", nameof(value));
+            return GeneralErrors.ValueIsEmpty("department.location.id");
 
-        return new(value);
+        return new DepartmentLocationId(value);
     }
 }
