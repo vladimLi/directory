@@ -1,4 +1,5 @@
 using DirectoryService.Core.Relationships;
+using DirectoryService.Web.EndpointResults;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,19 +17,17 @@ public class DepartmentLocationController : ControllerBase
     }
 
     [HttpPost("department/{departmentId:guid}/location/{locationId:guid}")]
-    public async Task<IActionResult> Create(
+    public async Task<EndpointResult<Guid>> Create(
         Guid departmentId,
         Guid locationId,
         CancellationToken cancellationToken,
         bool isPrimary = false)
     {
-        var result = await _departmentLocationService.Create(
+        return await _departmentLocationService.Create(
             departmentId,
             locationId,
             cancellationToken,
             isPrimary);
-
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
 
     [HttpGet("department-location/{id:guid}")]
@@ -45,12 +44,11 @@ public class DepartmentLocationController : ControllerBase
     }
 
     [HttpDelete("department{departmentId:guid}/location/{locationId:guid}")]
-    public async Task<IActionResult> Delete(
+    public async Task<EndpointResult<Guid>> Delete(
         [FromRoute] Guid departmentId,
         Guid locationId,
         CancellationToken cancellationToken)
     {
-        var result = await _departmentLocationService.Delete(departmentId, locationId, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _departmentLocationService.Delete(departmentId, locationId, cancellationToken);
     }
 }

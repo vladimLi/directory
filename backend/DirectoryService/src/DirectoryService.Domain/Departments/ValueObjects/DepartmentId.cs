@@ -9,7 +9,7 @@ public record DepartmentId
     
     private DepartmentId(Guid value) => Value = value;
 
-    public static Result<DepartmentId,Failure> Create(Guid value)
+    public static Result<DepartmentId,Errors> Create(Guid value)
     {
         if (value == Guid.Empty)
             return GeneralErrors.ValueIsEmpty("department.id");

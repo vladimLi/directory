@@ -21,7 +21,7 @@ namespace DirectoryService.Domain.Relationships
             PositionId = positionId;
         }
 
-        public static Result<DepartmentPosition, Failure> Create(Guid departmentId, Guid positionId)
+        public static Result<DepartmentPosition, Errors> Create(Guid departmentId, Guid positionId)
         {
             var departmentPositionId = DepartmentPositionId.Create(Guid.CreateVersion7());
             if (departmentPositionId.IsFailure)

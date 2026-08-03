@@ -6,16 +6,16 @@ public static partial class Fails
 {
     public static class LocationsError
     {
-        public static Failure LocationNameDuplicateException()
+        public static Shared.Errors LocationNameDuplicateException()
             => Error.Failure("location.name.duplicate", $"Местоположение с названием уже существует")
-                .ToFailure();
+                .ToErrors();
 
-        public static Failure LocationNotFoundException(Guid? id)
+        public static Shared.Errors LocationNotFoundException(Guid? id)
             => Error.NotFound("location.not.found", $"Локация не найдена", id)
-                .ToFailure();
+                .ToErrors();
 
-        public static Failure SaveFailedException(string details)
+        public static Shared.Errors SaveFailedException(string details)
             => Error.Failure("location.save.failed", $"Не удалось сохранить локацию: {details}")
-                .ToFailure();
+                .ToErrors();
     }
 }

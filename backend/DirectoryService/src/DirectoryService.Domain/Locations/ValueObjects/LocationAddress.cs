@@ -16,7 +16,7 @@ namespace DirectoryService.Domain.Locations.ValueObjects
         private LocationAddress(string street, string city, string country)
             : this($"{country}, г.{city}, ул.{street}") {}
 
-        public static Result<LocationAddress,Failure> Create(string street, string city, string country)
+        public static Result<LocationAddress,Errors> Create(string street, string city, string country)
         {
             if (string.IsNullOrWhiteSpace(street))
                 return GeneralErrors.VauleIsNullOrEmpty("street");
@@ -27,7 +27,7 @@ namespace DirectoryService.Domain.Locations.ValueObjects
             return new LocationAddress(street.Trim(), city.Trim(), country.Trim());
         }
 
-        public static Result<LocationAddress,Failure> Create(string value)
+        public static Result<LocationAddress,Errors> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return GeneralErrors.VauleIsNullOrEmpty("location.address");

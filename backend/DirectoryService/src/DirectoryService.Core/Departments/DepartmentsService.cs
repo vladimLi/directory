@@ -34,7 +34,7 @@ public class DepartmentsService : IDepartmentsService
         _logger = logger;
     }
 
-    public async Task<Result<Guid,Failure>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Guid,Shared.Errors>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
     {
         //Проверка валидности входных данных
         var validationResult = await _createDepartmentRequest.ValidateAsync(request, cancellationToken);
@@ -62,7 +62,7 @@ public class DepartmentsService : IDepartmentsService
             return isValid.Error;
 
         //Создание сущности
-        var parentDepartment = new Result<Department, Failure>();
+        var parentDepartment = new Result<Department, Shared.Errors>();
 
         if (request.ParentId is not null && request.ParentId != Guid.Empty)
         {
@@ -106,7 +106,7 @@ public class DepartmentsService : IDepartmentsService
         return department.Value.Id.Value;
     }
 
-    public async Task<Result<Guid,Failure>> UpdateDepartmentName(
+    public async Task<Result<Guid,Shared.Errors>> UpdateDepartmentName(
         UpdateDepartmentNameRequest request,
         CancellationToken cancellationToken)
     {
@@ -136,7 +136,7 @@ public class DepartmentsService : IDepartmentsService
         return department.Value.Id.Value;
     }
     
-    public async Task<Result<Guid,Failure>> UpdateDepartmentSlug(
+    public async Task<Result<Guid,Shared.Errors>> UpdateDepartmentSlug(
         UpdateDepartmentSlugRequest request,
         CancellationToken cancellationToken)
     {

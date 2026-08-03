@@ -19,7 +19,7 @@ public class EfCoreLocationsRepository: ILocationsRepository
         _context = context;
         _logger = logger;
     }
-    public async Task<Result<Guid, Failure>> AddAsync(Location location, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Errors>> AddAsync(Location location, CancellationToken cancellationToken)
     {
         try
         {
@@ -28,47 +28,47 @@ public class EfCoreLocationsRepository: ILocationsRepository
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
         
-            return Result.Success<Guid, Failure>(location.Id.Value);
+            return Result.Success<Guid, Errors>(location.Id.Value);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
             _logger.LogError(ex, "Ошибка при создании департамента");
 
-            return Result.Failure<Guid, Failure>(
+            return Result.Failure<Guid, Errors>(
                 Fails.LocationsError.SaveFailedException(ex.Message));
         }
     }
 
-    public async Task<Result<bool, Failure>> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken)
+    public async Task<Result<bool, Errors>> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken)
     {
         bool exists =  await _context.Locations
             .AnyAsync(x => x.Name == locationName, cancellationToken);
 
         if (exists)
-            return Result.Failure<bool, Failure>(
+            return Result.Failure<bool, Errors>(
                 Fails.LocationsError.LocationNameDuplicateException()
             );
         
-        return Result.Success<bool, Failure>(exists);
+        return Result.Success<bool, Errors>(exists);
     }
 
-    public async Task<Result<Location, Failure>> GetByIdAsync(LocationId locationId, CancellationToken cancellationToken)
+    public async Task<Result<Location, Errors>> GetByIdAsync(LocationId locationId, CancellationToken cancellationToken)
     {
         var location =  await _context.Locations
             .SingleOrDefaultAsync(l => l.Id == locationId, cancellationToken);
         if (location == null)
-            return Result.Failure<Location, Failure>(
+            return Result.Failure<Location, Errors>(
                 Fails.LocationsError.LocationNotFoundException(locationId.Value));
         
-        return Result.Success<Location, Failure>(location);
+        return Result.Success<Location, Errors>(location);
     }
 
-    public async Task<UnitResult<Failure>> Save(CancellationToken cancellationToken)
+    public async Task<UnitResult<Errors>> Save(CancellationToken cancellationToken)
     {
         try
         {
             await _context.SaveChangesAsync(cancellationToken);
-            return UnitResult.Success<Failure>();
+            return UnitResult.Success<Errors>();
         }
         catch  (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {

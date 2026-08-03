@@ -9,7 +9,7 @@ public record PositionId
 
     private PositionId(Guid value) => Value = value;
 
-    public static Result<PositionId, Failure> Create(Guid value)
+    public static Result<PositionId, Errors> Create(Guid value)
     {
         if (value == Guid.Empty)
             return GeneralErrors.ValueIsEmpty("position.id");

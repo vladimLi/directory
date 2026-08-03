@@ -1,5 +1,6 @@
 ﻿using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Departments;
+using DirectoryService.Web.EndpointResults;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +18,11 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
+    public async Task<EndpointResult<Guid>> Create(
         [FromBody] CreateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _departmentsService.Create(request, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _departmentsService.Create(request, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -40,23 +40,21 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpPatch("name")]
-    public async Task<IActionResult> UpdateDepartmentName(
+    public async Task<EndpointResult<Guid>> UpdateDepartmentName(
         [FromServices] IDepartmentsService departmentsService,
         [FromBody] UpdateDepartmentNameRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _departmentsService.UpdateDepartmentName(request, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _departmentsService.UpdateDepartmentName(request, cancellationToken);
     }
 
     [HttpPatch("slug")]
-    public async Task<IActionResult> UpdateDepartmentSlug(
+    public async Task<EndpointResult<Guid>> UpdateDepartmentSlug(
         [FromServices] IDepartmentsService departmentsService,
         [FromBody] UpdateDepartmentSlugRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _departmentsService.UpdateDepartmentSlug(request, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _departmentsService.UpdateDepartmentSlug(request, cancellationToken);
     }
 
 

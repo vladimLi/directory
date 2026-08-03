@@ -20,7 +20,7 @@ namespace DirectoryService.Domain.Positions
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
-        public static Result<Position,Failure> Create(string name)
+        public static Result<Position,Errors> Create(string name)
         {
             var positionId = PositionId.Create(Guid.CreateVersion7());
             if (positionId.IsFailure)

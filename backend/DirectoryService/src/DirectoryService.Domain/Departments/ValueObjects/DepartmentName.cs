@@ -8,7 +8,7 @@ public sealed record DepartmentName
     public string Value { get; }
     private DepartmentName(string value) => Value = value;
 
-    public static Result<DepartmentName,Failure> Create(string value)
+    public static Result<DepartmentName,Errors> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return GeneralErrors.ValueIsNull("department.name");

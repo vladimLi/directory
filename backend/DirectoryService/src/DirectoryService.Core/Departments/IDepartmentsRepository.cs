@@ -10,18 +10,18 @@ namespace DirectoryService.Core.Departments;
 
 public interface IDepartmentsRepository
 {
-    Task<Result<Guid, Failure>> AddAsync(
+    Task<Result<Guid, Shared.Errors>> AddAsync(
         Department department,
         IReadOnlyCollection<DepartmentLocation> departmentLocations,
         CancellationToken cancellationToken);
     
-    Task<Result<Department, Failure>> GetByIdAsync(
+    Task<Result<Department, Shared.Errors>> GetByIdAsync(
         DepartmentId departmentId,
         CancellationToken cancellationToken);
 
-     Task<Result<bool, Failure>> LocationExistsAsync(
+     Task<Result<bool, Shared.Errors>> LocationExistsAsync(
         IReadOnlyCollection<LocationId> locationIds,
         CancellationToken cancellationToken);
 
-     Task<UnitResult<Failure>> Save(CancellationToken cancellationToken);
+     Task<UnitResult<Shared.Errors>> Save(CancellationToken cancellationToken);
 }
