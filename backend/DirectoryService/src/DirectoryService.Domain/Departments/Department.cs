@@ -1,4 +1,6 @@
-﻿using DirectoryService.Domain.Departments.ValueObjects;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Domain.Departments.ValueObjects;
+using Shared;
 
 namespace DirectoryService.Domain.Departments;
 
@@ -12,40 +14,65 @@ public sealed class Department
     public DateTime CreatedAt { get; }
     public DateTime UpdatedAt { get; }
     //EF Core
-    public Department(){}
+    private Department(){}
     private Department(
-        Guid id,
-        string name,
-        string slug,
-        DepartmentPath? parentPath = null,
+        DepartmentId id,
+        DepartmentName name,
+        DepartmentSlug slug,
+        DepartmentPath path,
         DepartmentId? parentId = null)
     {
-        Id = DepartmentId.Create(id);
-        Name = DepartmentName.Create(name);
-        Slug = DepartmentSlug.Create(slug);
-        Path = DepartmentPath.Create(slug, parentPath, parentId);
+        Id = id;
+        Name = name;
+        Slug = slug;
+        Path = path;
         ParentId = parentId;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Department Create(
+    public static Result<Department,Failure> Create(
         string name,
         string slug,
         DepartmentPath? parentPath = null,
         DepartmentId? parentId = null)
     {
-        return new Department(Guid.CreateVersion7(), name, slug, parentPath, parentId);
+        var departmentId = DepartmentId.Create(Guid.CreateVersion7());
+        if (departmentId.IsFailure)
+            return departmentId.Error;
+        var departmentName = DepartmentName.Create(name);
+        if (departmentName.IsFailure)
+            return departmentName.Error;
+        var departmentSlug = DepartmentSlug.Create(slug);
+        if (departmentSlug.IsFailure)
+            return departmentSlug.Error;
+        var departmentPath = DepartmentPath
+            .Create(departmentSlug.Value.Value, parentPath, parentId);
+        if (departmentPath.IsFailure)
+            return departmentPath.Error;
+        
+        return new Department(departmentId.Value,
+            departmentName.Value,
+            departmentSlug.Value, 
+            departmentPath.Value,
+            parentId);
     }
 
-    public void UpdateName(string name)
+    public UnitResult<Failure> UpdateName(string name)
     {
         var newName = DepartmentName.Create(name);
-        Name =  newName;
+        if(newName.IsFailure)
+            return newName.Error;
+        Name =  newName.Value;
+        return UnitResult.Success<Failure>();
     }
-    public void UpdateSlug(string slug)
+
+    public UnitResult<Failure> UpdateSlug(string slug)
     {
         var newSlug = DepartmentSlug.Create(slug);
-        Slug =  newSlug;
+        if (newSlug.IsFailure)
+            return newSlug.Error;
+        Slug = newSlug.Value;
+        return UnitResult.Success<Failure>();
     }
 }

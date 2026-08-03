@@ -18,13 +18,13 @@ public sealed class DepartmentLocationConfiguration: IEntityTypeConfiguration<De
             .HasName("pk_department_locations");
         
         builder.Property(dl => dl.Id)
-            .HasConversion(id => id.Value, g => DepartmentLocationId.Create(g))
+            .HasConversion(id => id.Value, g => DepartmentLocationId.Create(g).Value)
             .HasColumnName("id");
         builder.Property(dl => dl.DepartmentId)
-            .HasConversion(id => id.Value, g => DepartmentId.Create(g))
+            .HasConversion(id => id.Value, g => DepartmentId.Create(g).Value)
             .HasColumnName("department_id");
         builder.Property(dl => dl.LocationId)
-            .HasConversion(id => id.Value, g => LocationId.Create(g))
+            .HasConversion(id => id.Value, g => LocationId.Create(g).Value)
             .HasColumnName("location_id");
         builder.Property(dl => dl.IsPrimary)
             .HasColumnName("is_primary")

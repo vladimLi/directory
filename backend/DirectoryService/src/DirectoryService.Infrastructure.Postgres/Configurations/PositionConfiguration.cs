@@ -14,11 +14,11 @@ public class PositionConfiguration: IEntityTypeConfiguration<Position>
         builder.HasKey(p => p.Id)
             .HasName("pk_positions");
         builder.Property(p => p.Id)
-            .HasConversion(p => p.Value, g => PositionId.Create(g))
+            .HasConversion(p => p.Value, g => PositionId.Create(g).Value)
             .HasColumnName("id");
         builder.Property(p => p.Name)
             .IsRequired()
-            .HasConversion(n => n.Value, n => PositionName.Create(n))
+            .HasConversion(n => n.Value, n => PositionName.Create(n).Value)
             .HasMaxLength(LengthConstants.Length50)
             .HasColumnName("name");
         builder.Property(p => p.CreatedAt)

@@ -15,29 +15,29 @@ public class DepartmentConfiguration: IEntityTypeConfiguration<Department>
             .HasName("pk_departments");
 
         builder.Property(d => d.Id)
-            .HasConversion(d => d.Value , g => DepartmentId.Create(g))
+            .HasConversion(d => d.Value , g => DepartmentId.Create(g).Value)
             .HasColumnName("id");
         
         builder.Property(d => d.Name)
             .IsRequired()
-            .HasConversion(n => n.Value, name => DepartmentName.Create(name))
+            .HasConversion(n => n.Value, name => DepartmentName.Create(name).Value)
             .HasMaxLength(LengthConstants.Length50)
             .HasColumnName("name");
         
         builder.Property(d => d.Slug)
             .IsRequired()
-            .HasConversion(s => s.Value, slug => DepartmentSlug.Create(slug))
+            .HasConversion(s => s.Value, slug => DepartmentSlug.Create(slug).Value)
             .HasMaxLength(LengthConstants.Length100)
             .HasColumnName("slug");
         
         builder.Property(d => d.Path)
             .IsRequired()
-            .HasConversion(p => p.Value, path => DepartmentPath.Create(path))
+            .HasConversion(p => p.Value, path => DepartmentPath.Create(path).Value)
             .HasMaxLength(LengthConstants.Length500)
             .HasColumnName("path");
         
         builder.Property(d => d.ParentId)
-            .HasConversion(id => id!.Value, g => DepartmentId.Create(g))
+            .HasConversion(id => id!.Value, g => DepartmentId.Create(g).Value)
             .HasColumnName("parent_id");
         
         builder.Property(d => d.CreatedAt)

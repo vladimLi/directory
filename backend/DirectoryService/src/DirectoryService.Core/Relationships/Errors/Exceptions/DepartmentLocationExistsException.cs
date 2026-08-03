@@ -5,7 +5,7 @@ namespace DirectoryService.Core.Relationships.Errors.Exceptions;
 public class DepartmentLocationExistsException : BadRequestException
 {
     public DepartmentLocationExistsException()
-        : base([Fails.DepartmentLocationError.DepartmentLocationExistsException()])
+        : base(Fails.DepartmentLocationError.DepartmentLocationExistsException())
     {
     }
 
@@ -19,6 +19,10 @@ public class DepartmentLocationExistsException : BadRequestException
 
     public DepartmentLocationExistsException(string? message, Exception? innerException) 
         : base(message, innerException)
+    {
+    }
+
+    protected DepartmentLocationExistsException(Shared.Failure failure) : base(failure)
     {
     }
 }

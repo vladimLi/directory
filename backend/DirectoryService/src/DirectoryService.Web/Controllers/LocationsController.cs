@@ -1,5 +1,6 @@
 ﻿using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations;
+using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -20,8 +21,8 @@ public class LocationsController : ControllerBase
         [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        var locationId = await _locationsService.Create(request, cancellationToken);
-        return Ok(locationId);
+        var result = await _locationsService.Create(request, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
 
     [HttpGet("{id:guid}")]
@@ -46,8 +47,8 @@ public class LocationsController : ControllerBase
         [FromBody] UpdateLocationNameRequest request,
         CancellationToken cancellationToken)
     {
-        var locationId = await _locationsService.UpdateLocationName(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = locationId }, locationId);
+        var result = await _locationsService.UpdateLocationName(request, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
     [HttpPatch("address")]
     public async Task<IActionResult> UpdateLocationAddress(
@@ -55,8 +56,8 @@ public class LocationsController : ControllerBase
         [FromBody] UpdateLocationAddressRequest request,
         CancellationToken cancellationToken)
     {
-        var locationId = await _locationsService.UpdateLocationAddress(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = locationId }, locationId);
+        var result = await _locationsService.UpdateLocationAddress(request, cancellationToken);
+        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
     }
 
     [HttpGet]
@@ -77,7 +78,6 @@ public class LocationsController : ControllerBase
         {
             return NotFound();
         }
-
         var response = new LocationResponse(id, request.Name, request.Address);
         return Ok(response);
     }
@@ -91,7 +91,6 @@ public class LocationsController : ControllerBase
         {
             return NotFound();
         }
-
         return NoContent();
     }
 }

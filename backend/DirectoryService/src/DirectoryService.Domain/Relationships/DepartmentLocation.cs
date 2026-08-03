@@ -1,6 +1,8 @@
+using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships.ValueObjects;
+using Shared;
 
 namespace DirectoryService.Domain.Relationships
 {
@@ -11,23 +13,40 @@ namespace DirectoryService.Domain.Relationships
         public LocationId LocationId { get; } = null!;
 
         public bool IsPrimary { get; }
+
         //EF Core
-        public DepartmentLocation(){}
-        private DepartmentLocation(Guid id, Guid departmentId, Guid locationId, bool isPrimary)
+        private DepartmentLocation() { }
+
+        private DepartmentLocation(DepartmentLocationId id,
+            DepartmentId departmentId,
+            LocationId locationId,
+            bool isPrimary)
         {
-            Id = DepartmentLocationId.Create(id);
-            DepartmentId = DepartmentId.Create(departmentId);
-            LocationId = LocationId.Create(locationId);
+            Id = id;
+            DepartmentId = departmentId;
+            LocationId = locationId;
             IsPrimary = isPrimary;
         }
-        public static DepartmentLocation Create(Guid departmentId, Guid locationId, bool isPrimary = false)
-        {
-            if (departmentId == Guid.Empty)
-                throw new ArgumentException("Department ID cannot be empty.", nameof(departmentId));
-            if (locationId == Guid.Empty)
-                throw new ArgumentException("Location ID cannot be empty.", nameof(locationId));
 
-            return new(Guid.CreateVersion7(),departmentId, locationId, isPrimary);
+        public static Result<DepartmentLocation, Failure> Create(Guid departmentId, Guid locId,
+            bool isPrimary = false)
+        {
+            var departmentLocationId = DepartmentLocationId.Create(Guid.CreateVersion7());
+            if (departmentLocationId.IsFailure)
+                return departmentLocationId.Error;
+            
+            var depId = DepartmentId.Create(departmentId);
+            if (depId.IsFailure)
+                return depId.Error;
+            
+            var locationId = LocationId.Create(locId);
+            if (locationId.IsFailure)
+                return locationId.Error;
+            
+            return new DepartmentLocation(departmentLocationId.Value,
+                depId.Value,
+                locationId.Value,
+                isPrimary);
         }
     }
 }

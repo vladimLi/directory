@@ -1,26 +1,29 @@
-﻿namespace DirectoryService.Domain.Departments.ValueObjects;
+﻿using CSharpFunctionalExtensions;
+using Shared;
+
+namespace DirectoryService.Domain.Departments.ValueObjects;
 
 public sealed record DepartmentPath
 {
     public string Value { get; }
     private DepartmentPath(string value) => Value = value;
 
-    public static DepartmentPath Create(
+    public static Result<DepartmentPath,Failure> Create(
     string slug,
     DepartmentPath? parentPath = null,
     DepartmentId? parentId = null)
     {
         if (string.IsNullOrWhiteSpace(slug))
-            throw new ArgumentException("Slug cannot be null or empty.", nameof(slug));
+            return GeneralErrors.VauleIsNullOrEmpty("slug");
 
         if (parentPath != null && parentId == null)
-            throw new ArgumentException(
-                "If parent path is provided, parent ID must also be provided.",
-                nameof(parentId));
+            return GeneralErrors.ConditionIsInvalid
+                ("Если указан родительский путь, то также должен быть указан родительский идентификатор.",
+                    "parentId");
 
         if (parentPath == null)
-            return new(slug);
+            return new DepartmentPath(slug);
 
-        return new($"{parentPath.Value}/{slug}");
+        return new DepartmentPath($"{parentPath.Value}/{slug}");
     }
 }

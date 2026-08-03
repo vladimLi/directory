@@ -5,8 +5,8 @@ namespace DirectoryService.Core.Exceptions;
 
 public class NotFoundException : Exception
 {
-    protected NotFoundException(Error[] errors)
-        : base(JsonSerializer.Serialize(errors))
+    protected NotFoundException(Failure failure)
+        : base(JsonSerializer.Serialize(failure))
     {
     }
 

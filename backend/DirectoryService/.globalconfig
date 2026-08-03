@@ -63,6 +63,9 @@ dotnet_diagnostic.CA1707.severity = none
 # CA1716 : Идентификаторы не должны совпадать с ключевыми словами
 dotnet_diagnostic.CA1716.severity = none
 
+# CA2225 : Для перегрузок операторов существуют варианты с именами
+dotnet_diagnostic.CA2225.severity = none
+
 # Правила строже, чем по умолчанию:
 dotnet_diagnostic.S1125.severity = error  # Redundant Boolean literal
 dotnet_diagnostic.S6673.severity = error  # Serilog template placeholder order

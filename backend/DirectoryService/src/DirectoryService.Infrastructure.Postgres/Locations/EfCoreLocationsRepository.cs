@@ -1,40 +1,82 @@
+using CSharpFunctionalExtensions;
 using DirectoryService.Core.Locations;
-using DirectoryService.Core.Locations.Errors.Exceptions;
+using DirectoryService.Core.Locations.Errors;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace DirectoryService.Infrastructure.Postgres.Locations;
 
 public class EfCoreLocationsRepository: ILocationsRepository
 {
     private readonly AppDbContext _context;
-
-    public EfCoreLocationsRepository(AppDbContext context)
+    private readonly ILogger<EfCoreLocationsRepository> _logger;
+    public EfCoreLocationsRepository(AppDbContext context,
+        ILogger<EfCoreLocationsRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
-    public async Task<Guid> AddAsync(Location location, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Failure>> AddAsync(Location location, CancellationToken cancellationToken)
     {
-        await _context.Locations.AddAsync(location, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-        return location.Id.Value;
+        try
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            await _context.Locations.AddAsync(location, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        
+            return Result.Success<Guid, Failure>(location.Id.Value);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+        {
+            _logger.LogError(ex, "Ошибка при создании департамента");
+
+            return Result.Failure<Guid, Failure>(
+                Fails.LocationsError.SaveFailedException(ex.Message));
+        }
     }
 
-    public async Task<bool> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken)
+    public async Task<Result<bool, Failure>> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken)
     {
-        return await _context.Locations
+        bool exists =  await _context.Locations
             .AnyAsync(x => x.Name == locationName, cancellationToken);
+
+        if (exists)
+            return Result.Failure<bool, Failure>(
+                Fails.LocationsError.LocationNameDuplicateException()
+            );
+        
+        return Result.Success<bool, Failure>(exists);
     }
 
-    public async Task<Location?> GetByIdAsync(LocationId locationId, CancellationToken cancellationToken)
+    public async Task<Result<Location, Failure>> GetByIdAsync(LocationId locationId, CancellationToken cancellationToken)
     {
         var location =  await _context.Locations
             .SingleOrDefaultAsync(l => l.Id == locationId, cancellationToken);
+        if (location == null)
+            return Result.Failure<Location, Failure>(
+                Fails.LocationsError.LocationNotFoundException(locationId.Value));
         
-        return location;
+        return Result.Success<Location, Failure>(location);
     }
 
-    public async Task Save(CancellationToken cancellationToken)
-        =>  await _context.SaveChangesAsync(cancellationToken);
+    public async Task<UnitResult<Failure>> Save(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return UnitResult.Success<Failure>();
+        }
+        catch  (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+        {
+            _logger.LogError(ex, "Ошибка при сохранении изменений в БД");
+
+            return UnitResult.Failure(
+                Fails.LocationsError.SaveFailedException(ex.Message)
+            );
+        }
+    }
 }

@@ -1,10 +1,10 @@
-using DirectoryService.Core.Departments.Errors.Exceptions;
-using DirectoryService.Core.Locations.Errors.Exceptions;
-using DirectoryService.Core.Relationships.Errors.Exceptions;
+using CSharpFunctionalExtensions;
+using DirectoryService.Core.Relationships.Errors;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace DirectoryService.Core.Relationships;
 
@@ -21,66 +21,88 @@ public class DepartmentLocationService : IDepartmentLocationService
         _logger = logger;
     }
 
-    public async Task<Guid> Create(
+    public async Task<Result<Guid, Failure>> Create(
         Guid departmentIdValue,
         Guid locationIdValue,
         CancellationToken cancellationToken,
         bool isPrimary = false)
     {
         var departmentId = DepartmentId.Create(departmentIdValue);
+        if(departmentId.IsFailure)
+            return departmentId.Error;
         //Проверка валидности бизнес логики
-        var departmentExists = await _repository.DepartmentExistsAsync(departmentId, cancellationToken);
-        if (!departmentExists)
-            throw new DepartmentNotFoundException(departmentId.Value);
+        var departmentExists = await _repository
+            .DepartmentExistsAsync(departmentId.Value, cancellationToken);
+        if (departmentExists.IsFailure)
+            return departmentExists.Error;
 
         var locationId = LocationId.Create(locationIdValue);
+        if (locationId.IsFailure)
+            return locationId.Error;
         // 2. Проверка существования локации
-        var locationExists = await _repository.LocationExistsAsync(locationId, cancellationToken);
-        if (!locationExists)
-            throw new LocationNotFoundException(locationId.Value);
+        var locationExists = await _repository
+            .LocationExistsAsync(locationId.Value, cancellationToken);
+        if (locationExists.IsFailure)
+            return locationExists.Error;
 
         // 3. Проверка существующей связи
-        var linkExists = await _repository.ExistsAsync(departmentId, locationId, cancellationToken);
-        if (linkExists)
-            throw new DepartmentLocationExistsException();
+        var linkExists = await _repository
+            .ExistsAsync(departmentId.Value, locationId.Value, cancellationToken);
+        if (linkExists.IsFailure)
+            return linkExists.Error;
 
         //Создание сущности
         var departmentLocation = DepartmentLocation.Create(departmentIdValue, locationIdValue, isPrimary);
-
+        if (departmentLocation.IsFailure)
+            return departmentLocation.Error;
         //Сохранение в БД
-        await _repository.AddAsync(departmentLocation, cancellationToken);
-
+        var result = await _repository.AddAsync(departmentLocation.Value, cancellationToken);
+        if(result.IsFailure)
+            return result.Error;
         //Логирование
-        _logger.LogInformation("Created DepartmentLocation with id {DepartmentLocationId}", departmentLocation.Id);
-        return departmentLocation.Id.Value;
+        _logger.LogInformation("Created DepartmentLocation with id {DepartmentLocationId}", departmentLocation.Value.Id.Value);
+        return departmentLocation.Value.Id.Value;
     }
 
-    public async Task<Guid> Delete(
+    public async Task<Result<Guid, Failure>> Delete(
         Guid departmentIdValue,
         Guid locationIdValue,
         CancellationToken cancellationToken)
     {
         var departmentId = DepartmentId.Create(departmentIdValue);
+        if (departmentId.IsFailure)
+            return departmentId.Error;
         //Проверка валидности бизнес логики
-        var departmentExists = await _repository.DepartmentExistsAsync(departmentId, cancellationToken);
-        if (!departmentExists)
-            throw new DepartmentNotFoundException(departmentId.Value);
+        var departmentExists = await _repository
+            .DepartmentExistsAsync(departmentId.Value, cancellationToken);
+        if (departmentExists.IsFailure)
+            return departmentExists.Error;
 
         var locationId = LocationId.Create(locationIdValue);
+        if (locationId.IsFailure)
+            return locationId.Error;
         // 2. Проверка существования локации
-        var locationExists = await _repository.LocationExistsAsync(locationId, cancellationToken);
-        if (!locationExists)
-            throw new LocationNotFoundException(locationId.Value);
+        var locationExists = await _repository
+            .LocationExistsAsync(locationId.Value, cancellationToken);
+        if (locationExists.IsFailure)
+            return locationExists.Error;
 
         // 3. Проверка существующей связи
-        var linkExists = await _repository.ExistsAsync(departmentId, locationId, cancellationToken);
-        if (!linkExists)
-            throw new DepartmentLocationNotFoundException();
-
-        var departmentLocation = await _repository.DeleteAsync(departmentId, locationId, cancellationToken);
-
-        _logger.LogInformation("Deleted DepartmentLocation with id {DepartmentLocationId}", departmentLocation);
+        var linkExists = await _repository.ExistsAsync(departmentId.Value, locationId.Value, cancellationToken);
         
+        if (linkExists.IsFailure)
+            return linkExists.Error;
+        
+        if (!linkExists.Value)
+            return Fails.DepartmentLocationError.DepartmentLocationNotFoundException();
+
+        var departmentLocation = await _repository
+            .DeleteAsync(departmentId.Value, locationId.Value, cancellationToken);
+        if(departmentLocation.IsFailure)
+            return departmentLocation.Error;
+        
+        _logger.LogInformation("Deleted DepartmentLocation with id {DepartmentLocationId}", departmentLocation);
+
         return departmentLocation;
     }
 }
