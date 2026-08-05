@@ -28,7 +28,7 @@ public sealed class Location
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Location, Failure> Create(string name, string street, string city, string country)
+    public static Result<Location, Errors> Create(string name, string street, string city, string country)
     {
         var locationId = LocationId.Create(Guid.CreateVersion7());
         if (locationId.IsFailure)
@@ -47,16 +47,16 @@ public sealed class Location
             locationAddress.Value);
     }
 
-    public UnitResult<Failure> UpdateName(string name)
+    public UnitResult<Errors> UpdateName(string name)
     {
         var newName = LocationName.Create(name);
         if (newName.IsFailure)
             return newName;
         Name = newName.Value;
-        return UnitResult.Success<Failure>();
+        return UnitResult.Success<Errors>();
     }
 
-    public UnitResult<Failure> UpdateAddress(
+    public UnitResult<Errors> UpdateAddress(
         string street,
         string city,
         string country)
@@ -65,6 +65,6 @@ public sealed class Location
         if (newAddress.IsFailure)
             return newAddress;
         Address = newAddress.Value;
-        return UnitResult.Success<Failure>();
+        return UnitResult.Success<Errors>();
     }
 }

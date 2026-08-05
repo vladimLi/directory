@@ -8,7 +8,7 @@ namespace DirectoryService.Domain.Positions.ValueObjects
         public string Value { get; }
         private PositionName(string value) => Value = value;
 
-        public static Result<PositionName,Failure> Create(string value)
+        public static Result<PositionName,Errors> Create(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return GeneralErrors.VauleIsNullOrEmpty("position.name");

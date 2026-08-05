@@ -28,7 +28,7 @@ namespace DirectoryService.Domain.Relationships
             IsPrimary = isPrimary;
         }
 
-        public static Result<DepartmentLocation, Failure> Create(Guid departmentId, Guid locId,
+        public static Result<DepartmentLocation, Errors> Create(Guid departmentId, Guid locId,
             bool isPrimary = false)
         {
             var departmentLocationId = DepartmentLocationId.Create(Guid.CreateVersion7());

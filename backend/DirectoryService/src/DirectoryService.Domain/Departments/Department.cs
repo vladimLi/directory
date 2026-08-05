@@ -31,7 +31,7 @@ public sealed class Department
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public static Result<Department,Failure> Create(
+    public static Result<Department,Errors> Create(
         string name,
         string slug,
         DepartmentPath? parentPath = null,
@@ -58,21 +58,21 @@ public sealed class Department
             parentId);
     }
 
-    public UnitResult<Failure> UpdateName(string name)
+    public UnitResult<Errors> UpdateName(string name)
     {
         var newName = DepartmentName.Create(name);
         if(newName.IsFailure)
             return newName.Error;
         Name =  newName.Value;
-        return UnitResult.Success<Failure>();
+        return UnitResult.Success<Errors>();
     }
 
-    public UnitResult<Failure> UpdateSlug(string slug)
+    public UnitResult<Errors> UpdateSlug(string slug)
     {
         var newSlug = DepartmentSlug.Create(slug);
         if (newSlug.IsFailure)
             return newSlug.Error;
         Slug = newSlug.Value;
-        return UnitResult.Success<Failure>();
+        return UnitResult.Success<Errors>();
     }
 }

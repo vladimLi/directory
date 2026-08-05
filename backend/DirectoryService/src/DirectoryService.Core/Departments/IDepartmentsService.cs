@@ -6,7 +6,7 @@ namespace DirectoryService.Core.Departments;
 
 public interface IDepartmentsService
 {
-    Task<Result<Guid, Failure>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken);
-    Task<Result<Guid, Failure>> UpdateDepartmentName(UpdateDepartmentNameRequest request, CancellationToken cancellationToken);
-    Task<Result<Guid, Failure>> UpdateDepartmentSlug(UpdateDepartmentSlugRequest request, CancellationToken cancellationToken);
+    Task<Result<Guid, Shared.Errors>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken);
+    Task<Result<Guid, Shared.Errors>> UpdateDepartmentName(UpdateDepartmentNameRequest request, CancellationToken cancellationToken);
+    Task<Result<Guid, Shared.Errors>> UpdateDepartmentSlug(UpdateDepartmentSlugRequest request, CancellationToken cancellationToken);
 }

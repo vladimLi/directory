@@ -12,7 +12,7 @@ public sealed partial record DepartmentSlug
 
     private DepartmentSlug(string value) =>  Value = value;
 
-    public static Result<DepartmentSlug,Failure> Create(string value)
+    public static Result<DepartmentSlug,Errors> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return GeneralErrors.VauleIsNullOrEmpty("department.slug");

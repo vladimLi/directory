@@ -7,20 +7,20 @@ public static partial class Fails
 {
     public static class DepartmentError
     {
-        public static Failure SaveFailedException(string details)
+        public static Shared.Errors SaveFailedException(string details)
             => Error.Failure("department.save.failed", $"Не удалось сохранить департамент: {details}")
-                .ToFailure();
+                .ToErrors();
         
-        public static Failure DepartmentNotFoundException(Guid? id)
+        public static Shared.Errors DepartmentNotFoundException(Guid? id)
             => Error.NotFound("department.not.found", $"Отдел не найден", id)
-                .ToFailure();
+                .ToErrors();
         
-        public static Failure ParentDepartmentNotFoundException(Guid? id)
+        public static Shared.Errors ParentDepartmentNotFoundException(Guid? id)
             => Error.NotFound("department.not.found", $"Родительский отдел не найден", id)
-                .ToFailure();
+                .ToErrors();
 
-        public static Failure LocationExistsException()
+        public static Shared.Errors LocationExistsException()
             => Error.Failure("locations.some.not.found", $"Некоторых локаций не существует")
-                .ToFailure();
+                .ToErrors();
     }
 }

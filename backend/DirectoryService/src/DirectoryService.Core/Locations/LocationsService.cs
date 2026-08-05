@@ -33,7 +33,7 @@ public class LocationsService : ILocationsService
         _logger = logger;
     }
 
-    public async Task<Result<Guid, Failure>> Create(
+    public async Task<Result<Guid, Shared.Errors>> Create(
         CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
@@ -72,7 +72,7 @@ public class LocationsService : ILocationsService
         return saveResult.Value;
     }
 
-    public async Task<Result<Guid, Failure>> UpdateLocationName(UpdateLocationNameRequest request,
+    public async Task<Result<Guid, Shared.Errors>> UpdateLocationName(UpdateLocationNameRequest request,
         CancellationToken cancellationToken)
     {
         var validationResult = await _updateLocationNameValidator.ValidateAsync(request, cancellationToken);
@@ -96,7 +96,7 @@ public class LocationsService : ILocationsService
         return location.Value.Id.Value;
     }
 
-    public async Task<Result<Guid, Failure>> UpdateLocationAddress(UpdateLocationAddressRequest request,
+    public async Task<Result<Guid, Shared.Errors>> UpdateLocationAddress(UpdateLocationAddressRequest request,
         CancellationToken cancellationToken)
     {
         var validationResult = await _updateLocationAddressValidator.ValidateAsync(request, cancellationToken);

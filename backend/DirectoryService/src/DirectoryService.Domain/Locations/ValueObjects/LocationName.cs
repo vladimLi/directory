@@ -9,7 +9,7 @@ public sealed record LocationName
 
     private LocationName(string value) => Value = value;
 
-    public static Result<LocationName,Failure> Create(string value)
+    public static Result<LocationName,Errors> Create(string value)
     {
         if(string.IsNullOrEmpty(value))
             return GeneralErrors.VauleIsNullOrEmpty("location.name");

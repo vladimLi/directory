@@ -5,16 +5,16 @@ namespace DirectoryService.Web.Extensions;
 
 public static class ResponseExtensions
 {
-    public static ActionResult ToResponse(this Failure failure)
+    public static ActionResult ToResponse(this Errors errors)
     {
-        if (!failure.Any())
+        if (!errors.Any())
         {
-            return new ObjectResult(failure)
+            return new ObjectResult(errors)
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
-        var distinctErrorTypes = failure
+        var distinctErrorTypes = errors
             .Select(e => e.Type)
             .Distinct()
             .ToList();
@@ -23,7 +23,7 @@ public static class ResponseExtensions
             ? StatusCodes.Status500InternalServerError
             : GetStatusCodeFromErrorType(distinctErrorTypes.FirstOrDefault());
 
-        return new ObjectResult(failure)
+        return new ObjectResult(errors)
         {
             StatusCode = statusCode
         };

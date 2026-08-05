@@ -1,5 +1,6 @@
 ﻿using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Locations;
+using DirectoryService.Web.EndpointResults;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +18,11 @@ public class LocationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
+    public async Task<EndpointResult<Guid>> Create(
         [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _locationsService.Create(request, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _locationsService.Create(request, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -42,22 +42,20 @@ public class LocationsController : ControllerBase
     }
 
     [HttpPatch("name")]
-    public async Task<IActionResult> UpdateLocationName(
+    public async Task<EndpointResult<Guid>> UpdateLocationName(
         [FromServices] ILocationsService locationsService,
         [FromBody] UpdateLocationNameRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _locationsService.UpdateLocationName(request, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _locationsService.UpdateLocationName(request, cancellationToken);
     }
     [HttpPatch("address")]
-    public async Task<IActionResult> UpdateLocationAddress(
+    public async Task<EndpointResult<Guid>> UpdateLocationAddress(
         [FromServices] ILocationsService locationsService,
         [FromBody] UpdateLocationAddressRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _locationsService.UpdateLocationAddress(request, cancellationToken);
-        return result.IsFailure ? result.Error.ToResponse() : Ok(result.Value);
+        return await _locationsService.UpdateLocationAddress(request, cancellationToken);
     }
 
     [HttpGet]

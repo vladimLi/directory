@@ -7,11 +7,11 @@ namespace DirectoryService.Core.Locations;
 
 public interface ILocationsRepository
 {
-    Task<Result<Guid,Failure>> AddAsync(Location location, CancellationToken cancellationToken);
-    Task<Result<bool,Failure>> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken);
-    Task<Result<Location,Failure>> GetByIdAsync(
+    Task<Result<Guid,Shared.Errors>> AddAsync(Location location, CancellationToken cancellationToken);
+    Task<Result<bool,Shared.Errors>> ExistsWithNameAsync(LocationName locationName, CancellationToken cancellationToken);
+    Task<Result<Location,Shared.Errors>> GetByIdAsync(
         LocationId locationId,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Failure>> Save(CancellationToken cancellationToken);
+    Task<UnitResult<Shared.Errors>> Save(CancellationToken cancellationToken);
  }

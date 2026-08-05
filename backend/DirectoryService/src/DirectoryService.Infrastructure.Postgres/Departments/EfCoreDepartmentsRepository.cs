@@ -22,7 +22,7 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
         _logger = logger;
     }
 
-    public async Task<Result<Guid, Failure>> AddAsync(
+    public async Task<Result<Guid, Errors>> AddAsync(
         Department department,
         IReadOnlyCollection<DepartmentLocation> departmentLocations,
         CancellationToken cancellationToken)
@@ -37,18 +37,18 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return Result.Success<Guid, Failure>(department.Id.Value);
+            return Result.Success<Guid, Errors>(department.Id.Value);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
             _logger.LogError(ex, "Ошибка при создании департамента");
 
-            return Result.Failure<Guid, Failure>(
+            return Result.Failure<Guid, Errors>(
                 Fails.DepartmentError.SaveFailedException(ex.Message));
         }
     }
 
-    public async Task<Result<Department, Failure>> GetByIdAsync(
+    public async Task<Result<Department, Errors>> GetByIdAsync(
         DepartmentId departmentId,
         CancellationToken cancellationToken)
     {
@@ -56,13 +56,13 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
             .SingleOrDefaultAsync(d => d.Id == departmentId, cancellationToken);
 
         if (department == null)
-            return Result.Failure<Department, Failure>(
+            return Result.Failure<Department, Errors>(
                 Fails.DepartmentError.DepartmentNotFoundException(departmentId.Value));
         
-        return Result.Success<Department, Failure>(department);
+        return Result.Success<Department, Errors>(department);
     }
 
-    public async Task<Result<bool, Failure>> LocationExistsAsync(
+    public async Task<Result<bool, Errors>> LocationExistsAsync(
         IReadOnlyCollection<LocationId> locationIds,
         CancellationToken cancellationToken)
     {
@@ -72,17 +72,17 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
         var exists = count == locationIds.Count;
 
         if (!exists)
-            return Result.Failure<bool,Failure>(Fails.DepartmentError.LocationExistsException());
+            return Result.Failure<bool,Errors>(Fails.DepartmentError.LocationExistsException());
         
-        return Result.Success<bool, Failure>(exists);
+        return Result.Success<bool, Errors>(exists);
     }
 
-    public async Task<UnitResult<Failure>> Save(CancellationToken cancellationToken)
+    public async Task<UnitResult<Errors>> Save(CancellationToken cancellationToken)
     {
         try
         {
             await _context.SaveChangesAsync(cancellationToken);
-            return UnitResult.Success<Failure>();
+            return UnitResult.Success<Errors>();
         }
         catch  (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {

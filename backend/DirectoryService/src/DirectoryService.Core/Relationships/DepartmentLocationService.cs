@@ -21,7 +21,7 @@ public class DepartmentLocationService : IDepartmentLocationService
         _logger = logger;
     }
 
-    public async Task<Result<Guid, Failure>> Create(
+    public async Task<Result<Guid, Shared.Errors>> Create(
         Guid departmentIdValue,
         Guid locationIdValue,
         CancellationToken cancellationToken,
@@ -64,7 +64,7 @@ public class DepartmentLocationService : IDepartmentLocationService
         return departmentLocation.Value.Id.Value;
     }
 
-    public async Task<Result<Guid, Failure>> Delete(
+    public async Task<Result<Guid, Shared.Errors>> Delete(
         Guid departmentIdValue,
         Guid locationIdValue,
         CancellationToken cancellationToken)
