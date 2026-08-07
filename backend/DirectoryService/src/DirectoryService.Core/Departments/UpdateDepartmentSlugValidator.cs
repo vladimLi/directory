@@ -1,6 +1,9 @@
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain;
+using DirectoryService.Domain.Departments.ValueObjects;
 using FluentValidation;
+using Shared;
 
 namespace DirectoryService.Core.Departments;
 
@@ -8,12 +11,21 @@ public class UpdateDepartmentSlugValidator :AbstractValidator<UpdateDepartmentSl
 {
     public UpdateDepartmentSlugValidator()
     {
-        RuleFor(d => d.Slug)
+        RuleFor(d => d.Id)
+            .MustBeValueObject(DepartmentId.Create)
             .NotNull()
-            .WithMessage("Department slug cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.department.id"))
             .NotEmpty()
-            .WithMessage("Department slug cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.department.id"));
+        
+        RuleFor(d => d.Slug)
+            .MustBeValueObject(DepartmentName.Create)
+            .NotNull()
+            .WithError(GeneralErrors.ValueIsNull("request.department.slug"))
+            .NotEmpty()
+            .WithError(GeneralErrors.ValueIsEmpty("request.department.slug"))
             .MaximumLength(LengthConstants.Length100)
-            .WithMessage($"Department slug cannot exceed {LengthConstants.Length100} characters.");
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.department.slug",
+                $"Слаг отдела не может превышать {LengthConstants.Length100}"));
     }
 }

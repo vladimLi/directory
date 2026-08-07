@@ -11,7 +11,7 @@ public sealed record DepartmentName
     public static Result<DepartmentName,Errors> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return GeneralErrors.ValueIsNull("department.name");
+            return GeneralErrors.VauleIsNullOrEmpty("department.name");
 
         if (value.Length > LengthConstants.Length50)
             return GeneralErrors.ValueLengthIsInvalid("department.name");

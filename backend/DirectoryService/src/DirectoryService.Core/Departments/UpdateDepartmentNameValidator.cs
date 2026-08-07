@@ -1,6 +1,9 @@
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain;
+using DirectoryService.Domain.Departments.ValueObjects;
 using FluentValidation;
+using Shared;
 
 namespace DirectoryService.Core.Departments;
 
@@ -9,17 +12,20 @@ public class UpdateDepartmentNameValidator : AbstractValidator<UpdateDepartmentN
     public UpdateDepartmentNameValidator()
     {
         RuleFor(d => d.Id)
+            .MustBeValueObject(DepartmentId.Create)
             .NotNull()
-            .WithMessage("Department Id cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.department.id"))
             .NotEmpty()
-            .WithMessage("Department Id cannot be empty.");
+            .WithError(GeneralErrors.ValueIsEmpty("request.department.id"));
         
         RuleFor(d => d.Name)
+            .MustBeValueObject(DepartmentName.Create)
             .NotNull()
-            .WithMessage("Department name cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.department.name"))
             .NotEmpty()
-            .WithMessage("Department name cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.department.name"))
             .MaximumLength(LengthConstants.Length50)
-            .WithMessage($"Department name cannot exceed {LengthConstants.Length50} characters.");
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.department.name",
+                $"Название отдела не может превышать {LengthConstants.Length50}"));
     }
 }

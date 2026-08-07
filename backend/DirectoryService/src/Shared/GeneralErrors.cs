@@ -18,7 +18,7 @@ public static class GeneralErrors
     public static Errors VauleIsNullOrEmpty(string? entityName = null, string? details = null)
     {
         string label = entityName ?? "value";
-        return Error.Validation($"{label}.is.null", $"Значение не должно быть пустым или равным null: {details}")
+        return Error.Validation($"{label}.is.null.or.empty", $"Значение не должно быть пустым или равным null: {details}")
             .ToErrors();
     }
 

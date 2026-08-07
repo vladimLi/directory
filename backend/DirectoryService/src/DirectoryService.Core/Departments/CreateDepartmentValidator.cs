@@ -1,9 +1,12 @@
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Locations;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain;
 using DirectoryService.Domain.Departments.ValueObjects;
+using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace DirectoryService.Core.Departments;
 
@@ -12,25 +15,40 @@ public class CreateDepartmentValidator: AbstractValidator<CreateDepartmentReques
     public CreateDepartmentValidator()
     {
         RuleFor(d => d.Name)
+            .MustBeValueObject(DepartmentName.Create)
             .NotNull()
-            .WithMessage("Department name cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.department.name"))
             .NotEmpty()
-            .WithMessage("Department name cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.department.name"))
             .MaximumLength(LengthConstants.Length50)
-            .WithMessage($"Department name cannot exceed {LengthConstants.Length50} characters.");
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.department.name",
+                $"Название отдела не может превышать {LengthConstants.Length50}"));
 
         RuleFor(d => d.Slug)
+            .MustBeValueObject(DepartmentSlug.Create)
             .NotNull()
-            .WithMessage("Department slug cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.department.slug"))
             .NotEmpty()
-            .WithMessage("Department slug cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.department.slug"))
             .MaximumLength(LengthConstants.Length100)
-            .WithMessage($"Department slug cannot exceed {LengthConstants.Length100} characters.");
-        
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.department.slug", 
+                $"Длина не должна превышать {LengthConstants.Length100}"));
+
         RuleFor(d => d.LocationIds)
             .NotNull()
-            .WithMessage("LocationIds cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.location.ids"))
+            .NotEmpty()
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.ids"))
             .Must(ids => ids.Distinct().Count() == ids.Count)
-            .WithMessage("LocationIds must contain unique values.");
+            .WithError(GeneralErrors.ConditionIsInvalid(
+                "Идентификаторы местоположения должны содержать уникальные значения.",
+                "request.location.ids"));
+
+        RuleForEach(d => d.LocationIds)
+            .MustBeValueObject(LocationId.Create)
+            .NotNull()
+            .WithError(GeneralErrors.ValueIsNull("request.location.id"))
+            .NotEmpty()
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.id"));
     }
 }
