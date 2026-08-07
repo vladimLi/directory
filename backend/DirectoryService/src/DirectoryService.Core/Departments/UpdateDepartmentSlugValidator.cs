@@ -19,7 +19,7 @@ public class UpdateDepartmentSlugValidator :AbstractValidator<UpdateDepartmentSl
             .WithError(GeneralErrors.ValueIsEmpty("request.department.id"));
         
         RuleFor(d => d.Slug)
-            .MustBeValueObject(DepartmentName.Create)
+            .MustBeValueObject(DepartmentSlug.Create)
             .NotNull()
             .WithError(GeneralErrors.ValueIsNull("request.department.slug"))
             .NotEmpty()
