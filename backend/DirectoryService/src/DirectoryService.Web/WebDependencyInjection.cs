@@ -1,4 +1,5 @@
 using DirectoryService.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web;
 
@@ -14,7 +15,11 @@ public static class WebDependencyInjection
     {
         services.AddOpenApi();
         services.AddControllers();
-        
+        //дефолтные настройки
+        /*services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.SuppressModelStateInvalidFilter = true;
+        });*/
         return services;
     }
 }
