@@ -15,7 +15,7 @@ public sealed partial record DepartmentSlug
     public static Result<DepartmentSlug,Errors> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return GeneralErrors.VauleIsNullOrEmpty("department.slug");
+            return GeneralErrors.ValueIsNullOrEmpty("department.slug");
         
         string normalized = value.Trim().ToLowerInvariant();
 

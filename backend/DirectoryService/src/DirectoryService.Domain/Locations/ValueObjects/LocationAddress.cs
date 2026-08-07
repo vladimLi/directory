@@ -19,18 +19,18 @@ namespace DirectoryService.Domain.Locations.ValueObjects
         public static Result<LocationAddress,Errors> Create(string street, string city, string country)
         {
             if (string.IsNullOrWhiteSpace(street))
-                return GeneralErrors.VauleIsNullOrEmpty("street");
+                return GeneralErrors.ValueIsNullOrEmpty("street");
             if (string.IsNullOrWhiteSpace(city))
-                return GeneralErrors.VauleIsNullOrEmpty("city");
+                return GeneralErrors.ValueIsNullOrEmpty("city");
             if (string.IsNullOrWhiteSpace(country))
-                return GeneralErrors.VauleIsNullOrEmpty("country");
+                return GeneralErrors.ValueIsNullOrEmpty("country");
             return new LocationAddress(street.Trim(), city.Trim(), country.Trim());
         }
 
         public static Result<LocationAddress,Errors> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return GeneralErrors.VauleIsNullOrEmpty("location.address");
+                return GeneralErrors.ValueIsNullOrEmpty("location.address");
 
             return new LocationAddress(value.Trim());
         }

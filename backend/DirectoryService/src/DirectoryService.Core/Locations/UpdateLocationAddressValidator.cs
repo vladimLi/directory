@@ -12,11 +12,7 @@ public class UpdateLocationAddressValidator : AbstractValidator<UpdateLocationAd
     public UpdateLocationAddressValidator()
     {
         RuleFor(l => l.Id)
-            .MustBeValueObject(LocationId.Create)
-            .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.id"))
-            .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.id"));
+            .MustBeValueObject(LocationId.Create);
         
         RuleFor(l => l.Address.City)
             .NotNull()

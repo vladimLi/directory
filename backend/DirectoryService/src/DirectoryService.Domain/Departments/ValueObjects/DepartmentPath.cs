@@ -14,7 +14,7 @@ public sealed record DepartmentPath
     DepartmentId? parentId = null)
     {
         if (string.IsNullOrWhiteSpace(slug))
-            return GeneralErrors.VauleIsNullOrEmpty("slug");
+            return GeneralErrors.ValueIsNullOrEmpty("slug");
 
         if (parentPath != null && parentId == null)
             return GeneralErrors.ConditionIsInvalid

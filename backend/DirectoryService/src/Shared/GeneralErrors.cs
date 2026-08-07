@@ -15,7 +15,7 @@ public static class GeneralErrors
         return Error.Validation($"{label}.is.null", $"Передано значение null: {details}")
             .ToErrors();
     }
-    public static Errors VauleIsNullOrEmpty(string? entityName = null, string? details = null)
+    public static Errors ValueIsNullOrEmpty(string? entityName = null, string? details = null)
     {
         string label = entityName ?? "value";
         return Error.Validation($"{label}.is.null.or.empty", $"Значение не должно быть пустым или равным null: {details}")

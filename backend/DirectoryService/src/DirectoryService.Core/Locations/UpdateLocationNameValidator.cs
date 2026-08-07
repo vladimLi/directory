@@ -12,20 +12,9 @@ public class UpdateLocationNameValidator: AbstractValidator<UpdateLocationNameRe
     public UpdateLocationNameValidator()
     {
         RuleFor(l => l.Id)
-            .MustBeValueObject(LocationId.Create)
-            .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.id"))
-            .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.id"));
+            .MustBeValueObject(LocationId.Create);
         
         RuleFor(l => l.Name)
-            .MustBeValueObject(LocationName.Create)
-            .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.name"))
-            .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.name"))
-            .MaximumLength(LengthConstants.Length50)
-            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.name",
-                $"Название локации не может превышать {LengthConstants.Length50}"));
+            .MustBeValueObject(LocationName.Create);
     }
 }

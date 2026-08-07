@@ -12,14 +12,7 @@ public class CreateLocationValidator: AbstractValidator<CreateLocationRequest>
     public CreateLocationValidator()
     {
         RuleFor(l => l.Name)
-            .MustBeValueObject(LocationName.Create)
-            .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.name"))
-            .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.name"))
-            .MaximumLength(LengthConstants.Length50)
-            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.name",
-                $"Название локации не может превышать {LengthConstants.Length50}"));
+            .MustBeValueObject(LocationName.Create);
         
         RuleFor(l => l.Address.City)
             .NotNull()
