@@ -12,7 +12,7 @@ public record LocationId
     public static Result<LocationId,Errors> Create(Guid value)
     {
         if (value == Guid.Empty)
-            return GeneralErrors.ValueIsNull("location.id");
+            return GeneralErrors.ValueIsEmpty("location.id");
 
         return new LocationId(value);
     }

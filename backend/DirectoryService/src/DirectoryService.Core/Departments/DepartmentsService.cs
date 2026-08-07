@@ -7,6 +7,8 @@ using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
 using FluentValidation;
+using FluentValidation.Internal;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using Shared;
 
@@ -34,7 +36,8 @@ public class DepartmentsService : IDepartmentsService
         _logger = logger;
     }
 
-    public async Task<Result<Guid,Shared.Errors>> Create(CreateDepartmentRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Shared.Errors>> Create(CreateDepartmentRequest request,
+        CancellationToken cancellationToken)
     {
         //Проверка валидности входных данных
         var validationResult = await _createDepartmentRequest.ValidateAsync(request, cancellationToken);
@@ -44,17 +47,7 @@ public class DepartmentsService : IDepartmentsService
         
         //Проверка валидности бизнес логики
 
-        var locationIds = new List<LocationId>();
-
-        foreach (var rawId in request.LocationIds)
-        {
-            var idResult = LocationId.Create(rawId);
-
-            if (idResult.IsFailure)
-                return idResult.Error; // корректный Failure → 400
-
-            locationIds.Add(idResult.Value);
-        }
+        var locationIds = request.LocationIds.Select(g => LocationId.Create(g).Value).ToList();
 
         var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
 
@@ -76,7 +69,6 @@ public class DepartmentsService : IDepartmentsService
                 return Fails.DepartmentError.ParentDepartmentNotFoundException(parentId.Value.Value);
         }
 
-
         var department = Department.Create(
             request.Name,
             request.Slug,
@@ -93,7 +85,7 @@ public class DepartmentsService : IDepartmentsService
             var dlResult = DepartmentLocation.Create(department.Value.Id.Value, rawId);
 
             if (dlResult.IsFailure)
-                return dlResult.Error; // корректный Failure → 400/404/409
+                return dlResult.Error;
 
             departmentLocations.Add(dlResult.Value);
         }
@@ -117,8 +109,6 @@ public class DepartmentsService : IDepartmentsService
             return validationResult.ToErrors();
         
         var departmentId = DepartmentId.Create(request.Id);
-        if(departmentId.IsFailure)
-            return departmentId.Error;
         
         var department = await _repository.GetByIdAsync(departmentId.Value, cancellationToken);
         if (department.IsFailure)
@@ -147,8 +137,6 @@ public class DepartmentsService : IDepartmentsService
             return validationResult.ToErrors();
         
         var departmentId = DepartmentId.Create(request.Id);
-        if(departmentId.IsFailure)
-            return departmentId.Error;
         
         var department = await _repository.GetByIdAsync(departmentId.Value, cancellationToken);
         if (department.IsFailure)

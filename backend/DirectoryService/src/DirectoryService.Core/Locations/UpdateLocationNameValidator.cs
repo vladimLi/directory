@@ -1,6 +1,9 @@
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain;
+using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
+using Shared;
 
 namespace DirectoryService.Core.Locations;
 
@@ -9,17 +12,9 @@ public class UpdateLocationNameValidator: AbstractValidator<UpdateLocationNameRe
     public UpdateLocationNameValidator()
     {
         RuleFor(l => l.Id)
-            .NotNull()
-            .WithMessage("Location Id cannot be null.")
-            .NotEmpty()
-            .WithMessage("Location Id cannot be empty.");
+            .MustBeValueObject(LocationId.Create);
         
         RuleFor(l => l.Name)
-            .NotNull()
-            .WithMessage("Location name cannot be null.")
-            .NotEmpty()
-            .WithMessage("Location name cannot be empty.")
-            .MaximumLength(LengthConstants.Length50)
-            .WithMessage($"Location name cannot exceed {LengthConstants.Length50} characters.");
+            .MustBeValueObject(LocationName.Create);
     }
 }

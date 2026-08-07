@@ -1,6 +1,9 @@
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain;
+using DirectoryService.Domain.Departments.ValueObjects;
 using FluentValidation;
+using Shared;
 
 namespace DirectoryService.Core.Departments;
 
@@ -9,17 +12,9 @@ public class UpdateDepartmentNameValidator : AbstractValidator<UpdateDepartmentN
     public UpdateDepartmentNameValidator()
     {
         RuleFor(d => d.Id)
-            .NotNull()
-            .WithMessage("Department Id cannot be null.")
-            .NotEmpty()
-            .WithMessage("Department Id cannot be empty.");
+            .MustBeValueObject(DepartmentId.Create);
         
         RuleFor(d => d.Name)
-            .NotNull()
-            .WithMessage("Department name cannot be null.")
-            .NotEmpty()
-            .WithMessage("Department name cannot be empty.")
-            .MaximumLength(LengthConstants.Length50)
-            .WithMessage($"Department name cannot exceed {LengthConstants.Length50} characters.");
+            .MustBeValueObject(DepartmentName.Create);
     }
 }

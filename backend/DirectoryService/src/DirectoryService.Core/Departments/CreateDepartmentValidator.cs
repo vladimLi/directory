@@ -1,9 +1,9 @@
 using DirectoryService.Contracts.Departments;
-using DirectoryService.Core.Locations;
-using DirectoryService.Domain;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain.Departments.ValueObjects;
+using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
-using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace DirectoryService.Core.Departments;
 
@@ -12,25 +12,22 @@ public class CreateDepartmentValidator: AbstractValidator<CreateDepartmentReques
     public CreateDepartmentValidator()
     {
         RuleFor(d => d.Name)
-            .NotNull()
-            .WithMessage("Department name cannot be null.")
-            .NotEmpty()
-            .WithMessage("Department name cannot be empty.")
-            .MaximumLength(LengthConstants.Length50)
-            .WithMessage($"Department name cannot exceed {LengthConstants.Length50} characters.");
+            .MustBeValueObject(DepartmentName.Create);
 
         RuleFor(d => d.Slug)
-            .NotNull()
-            .WithMessage("Department slug cannot be null.")
-            .NotEmpty()
-            .WithMessage("Department slug cannot be empty.")
-            .MaximumLength(LengthConstants.Length100)
-            .WithMessage($"Department slug cannot exceed {LengthConstants.Length100} characters.");
-        
+            .MustBeValueObject(DepartmentSlug.Create);
+
         RuleFor(d => d.LocationIds)
             .NotNull()
-            .WithMessage("LocationIds cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.location.ids"))
+            .NotEmpty()
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.ids"))
             .Must(ids => ids.Distinct().Count() == ids.Count)
-            .WithMessage("LocationIds must contain unique values.");
+            .WithError(GeneralErrors.ConditionIsInvalid(
+                "Идентификаторы местоположения должны содержать уникальные значения.",
+                "request.location.ids"));
+
+        RuleForEach(d => d.LocationIds)
+            .MustBeValueObject(LocationId.Create);
     }
 }

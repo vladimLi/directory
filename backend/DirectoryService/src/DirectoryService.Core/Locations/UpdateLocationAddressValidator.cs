@@ -1,6 +1,9 @@
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Core.Validation;
 using DirectoryService.Domain;
+using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
+using Shared;
 
 namespace DirectoryService.Core.Locations;
 
@@ -8,28 +11,40 @@ public class UpdateLocationAddressValidator : AbstractValidator<UpdateLocationAd
 {
     public UpdateLocationAddressValidator()
     {
+        RuleFor(l => l.Id)
+            .MustBeValueObject(LocationId.Create);
+        
         RuleFor(l => l.Address.City)
             .NotNull()
-            .WithMessage("Address city cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.location.city"))
             .NotEmpty()
-            .WithMessage("Address city cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.city"))
             .MaximumLength(LengthConstants.Length100)
-            .WithMessage($"Address city cannot exceed {LengthConstants.Length100} characters.");
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.city",
+                $"Назавание города не может превышать {LengthConstants.Length100}"));
         
         RuleFor(l => l.Address.Country)
             .NotNull()
-            .WithMessage("Address country cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.location.country"))
             .NotEmpty()
-            .WithMessage("Address country cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.country"))
             .MaximumLength(LengthConstants.Length100)
-            .WithMessage($"Address country cannot exceed {LengthConstants.Length100} characters.");
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.country",
+                $"Назавание страны не может превышать {LengthConstants.Length100}"));
         
         RuleFor(l => l.Address.Street)
             .NotNull()
-            .WithMessage("Address street cannot be null.")
+            .WithError(GeneralErrors.ValueIsNull("request.location.street"))
             .NotEmpty()
-            .WithMessage("Address street cannot be empty.")
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.street"))
             .MaximumLength(LengthConstants.Length500)
-            .WithMessage($"Address street cannot exceed {LengthConstants.Length500} characters.");
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.street",
+                $"Назавание улицы не может превышать {LengthConstants.Length500}"));
+        
+        RuleFor(l => l.Address)
+            .MustBeValueObject(req => LocationAddress.Create(
+                req.Street,
+                req.City,
+                req.Country));
     }
 }

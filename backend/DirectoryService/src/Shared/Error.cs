@@ -35,7 +35,7 @@ public record Error
 
     public Errors ToErrors() => this;
 }
-
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ErrorType
 {
     VALIDATION,
