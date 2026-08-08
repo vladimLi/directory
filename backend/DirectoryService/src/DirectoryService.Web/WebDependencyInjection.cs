@@ -5,10 +5,10 @@ namespace DirectoryService.Web;
 
 public static class WebDependencyInjection
 {
-    public static IServiceCollection AddProgramDependencies(this IServiceCollection services)
+    public static IServiceCollection AddProgramDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         return services.AddWebDependencies()
-            .AddApplication();
+            .AddApplication(configuration);
     }
 
     private static IServiceCollection AddWebDependencies(this IServiceCollection services)
@@ -16,10 +16,10 @@ public static class WebDependencyInjection
         services.AddOpenApi();
         services.AddControllers();
         //дефолтные настройки
-        /*services.Configure<ApiBehaviorOptions>(options =>
+        services.Configure<ApiBehaviorOptions>(options =>
         {
             options.SuppressModelStateInvalidFilter = true;
-        });*/
+        });
         return services;
     }
 }
