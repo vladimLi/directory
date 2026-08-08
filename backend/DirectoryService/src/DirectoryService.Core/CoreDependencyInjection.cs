@@ -11,27 +11,15 @@ namespace DirectoryService.Core;
 
 public static class CoreDependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services
-            .AddValidatorsFromAssembly(typeof(CoreDependencyInjection).Assembly)
-            .AddSerilogLogging(configuration);
+            .AddValidatorsFromAssembly(typeof(CoreDependencyInjection).Assembly);
         
 
         services.AddScoped<ILocationsService, LocationsService>();
         services.AddScoped<IDepartmentsService, DepartmentsService>();
         services.AddScoped<IDepartmentLocationService, DepartmentLocationService>();
-        
-        return services;
-    }
-    private static IServiceCollection AddSerilogLogging(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddSerilog((sp, lc) => lc
-            .ReadFrom.Configuration(configuration)
-            .ReadFrom.Services(sp)
-            .Enrich.FromLogContext()
-            .Enrich.WithExceptionDetails()
-            .Enrich.WithProperty("ServiceName", "DirectoryService"));
         
         return services;
     }
