@@ -1,5 +1,9 @@
 ﻿using DirectoryService.Contracts.Locations;
+using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Locations;
+using DirectoryService.Core.Locations.Features.CreateLocation;
+using DirectoryService.Core.Locations.Features.UpdateLocationAddress;
+using DirectoryService.Core.Locations.Features.UpdateLocationName;
 using DirectoryService.Web.EndpointResults;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -10,19 +14,14 @@ namespace DirectoryService.Web.Controllers;
 [Route("locations")]
 public class LocationsController : ControllerBase
 {
-    private readonly ILocationsService _locationsService;
-
-    public LocationsController(ILocationsService locationsService)
-    {
-        _locationsService = locationsService;
-    }
-
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
+        [FromServices] ICommandHandler<Guid, CreateLocationCommand> handler,
         [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        return await _locationsService.Create(request, cancellationToken);
+        var command = new CreateLocationCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -43,19 +42,21 @@ public class LocationsController : ControllerBase
 
     [HttpPatch("name")]
     public async Task<EndpointResult<Guid>> UpdateLocationName(
-        [FromServices] ILocationsService locationsService,
+        [FromServices]  ICommandHandler<Guid, UpdateLocationNameCommand> handler,
         [FromBody] UpdateLocationNameRequest request,
         CancellationToken cancellationToken)
     {
-        return await _locationsService.UpdateLocationName(request, cancellationToken);
+        var command = new UpdateLocationNameCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
     [HttpPatch("address")]
     public async Task<EndpointResult<Guid>> UpdateLocationAddress(
-        [FromServices] ILocationsService locationsService,
+        [FromServices]  ICommandHandler<Guid, UpdateLocationAddressCommand> handler,
         [FromBody] UpdateLocationAddressRequest request,
         CancellationToken cancellationToken)
     {
-        return await _locationsService.UpdateLocationAddress(request, cancellationToken);
+        var command = new UpdateLocationAddressCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpGet]

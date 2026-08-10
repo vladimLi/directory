@@ -1,3 +1,4 @@
+using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Relationships;
@@ -13,13 +14,16 @@ public static class CoreDependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        var assembly = typeof(CoreDependencyInjection).Assembly;
         services
-            .AddValidatorsFromAssembly(typeof(CoreDependencyInjection).Assembly);
-        
+            .AddValidatorsFromAssembly(assembly);
 
-        services.AddScoped<ILocationsService, LocationsService>();
-        services.AddScoped<IDepartmentsService, DepartmentsService>();
-        services.AddScoped<IDepartmentLocationService, DepartmentLocationService>();
+        services.Scan(scan => scan.FromAssemblies(assembly)
+            .AddClasses(classes => classes.AssignableToAny(
+                typeof(ICommandHandler<,>),
+                typeof(ICommandHandler<>)))
+            .AsSelfWithInterfaces()
+            .WithScopedLifetime());
         
         return services;
     }
