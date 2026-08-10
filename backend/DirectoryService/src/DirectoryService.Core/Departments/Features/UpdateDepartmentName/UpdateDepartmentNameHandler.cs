@@ -6,7 +6,7 @@ using DirectoryService.Domain.Departments.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Core.Departments.Features;
+namespace DirectoryService.Core.Departments.Features.UpdateDepartmentName;
 
 public class UpdateDepartmentNameHandler :
     ICommandHandler<Guid, UpdateDepartmentNameCommand>

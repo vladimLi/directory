@@ -3,6 +3,7 @@ using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Departments.Features;
 using DirectoryService.Core.Departments.Features.CreateDepartment;
+using DirectoryService.Core.Departments.Features.UpdateDepartmentName;
 using DirectoryService.Core.Departments.Features.UpdateDepartmentSlug;
 using DirectoryService.Web.EndpointResults;
 using Microsoft.AspNetCore.Mvc;

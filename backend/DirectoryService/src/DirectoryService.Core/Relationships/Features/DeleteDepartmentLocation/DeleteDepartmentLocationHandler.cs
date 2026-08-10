@@ -1,12 +1,11 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Relationships.Errors;
-using DirectoryService.Core.Relationships.Features.DeleteDepartmentLocation;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Core.Relationships;
+namespace DirectoryService.Core.Relationships.Features.DeleteDepartmentLocation;
 
 public class DeleteDepartmentLocationHandler : ICommandHandler<Guid, DeleteDepartmentLocationCommand>
 {

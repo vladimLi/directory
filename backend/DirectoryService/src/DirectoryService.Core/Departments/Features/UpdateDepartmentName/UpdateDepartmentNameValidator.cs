@@ -3,8 +3,7 @@ using DirectoryService.Core.Validation;
 using DirectoryService.Domain.Departments.ValueObjects;
 using FluentValidation;
 
-namespace DirectoryService.Core.Departments.Features;
-
+namespace DirectoryService.Core.Departments.Features.UpdateDepartmentName;
 public class UpdateDepartmentNameValidator : AbstractValidator<UpdateDepartmentNameRequest>
 {
     public UpdateDepartmentNameValidator()

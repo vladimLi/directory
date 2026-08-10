@@ -39,7 +39,6 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         //Проверка валидности бизнес логики
         var locationName = LocationName.Create(command.Request.Name);
         
-        //Проверь LocationName Create возвращает LocationName
         var nameExists = await _repository.ExistsWithNameAsync(locationName.Value, cancellationToken);
 
         if (nameExists.IsFailure)
