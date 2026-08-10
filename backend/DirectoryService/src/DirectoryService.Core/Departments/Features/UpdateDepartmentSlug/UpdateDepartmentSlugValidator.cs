@@ -1,11 +1,9 @@
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Validation;
-using DirectoryService.Domain;
 using DirectoryService.Domain.Departments.ValueObjects;
 using FluentValidation;
-using Shared;
 
-namespace DirectoryService.Core.Departments;
+namespace DirectoryService.Core.Departments.Features.UpdateDepartmentSlug;
 
 public class UpdateDepartmentSlugValidator :AbstractValidator<UpdateDepartmentSlugRequest>
 {

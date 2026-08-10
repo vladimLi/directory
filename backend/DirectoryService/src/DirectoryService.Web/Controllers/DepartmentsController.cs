@@ -1,7 +1,11 @@
 ﻿using DirectoryService.Contracts.Departments;
+using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments;
+using DirectoryService.Core.Departments.Features;
+using DirectoryService.Core.Departments.Features.CreateDepartment;
+using DirectoryService.Core.Departments.Features.UpdateDepartmentName;
+using DirectoryService.Core.Departments.Features.UpdateDepartmentSlug;
 using DirectoryService.Web.EndpointResults;
-using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -10,19 +14,14 @@ namespace DirectoryService.Web.Controllers;
 [Route("departments")]
 public class DepartmentsController : ControllerBase
 {
-    private readonly IDepartmentsService _departmentsService;
-
-    public DepartmentsController(IDepartmentsService departmentsService)
-    {
-        _departmentsService = departmentsService;
-    }
-
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
+        [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
         [FromBody] CreateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
-        return await _departmentsService.Create(request, cancellationToken);
+        var command = new CreateDepartmentCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -41,20 +40,22 @@ public class DepartmentsController : ControllerBase
 
     [HttpPatch("name")]
     public async Task<EndpointResult<Guid>> UpdateDepartmentName(
-        [FromServices] IDepartmentsService departmentsService,
+        [FromServices] ICommandHandler<Guid,UpdateDepartmentNameCommand> handler,
         [FromBody] UpdateDepartmentNameRequest request,
         CancellationToken cancellationToken)
     {
-        return await _departmentsService.UpdateDepartmentName(request, cancellationToken);
+        var command = new UpdateDepartmentNameCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpPatch("slug")]
     public async Task<EndpointResult<Guid>> UpdateDepartmentSlug(
-        [FromServices] IDepartmentsService departmentsService,
+        [FromServices] ICommandHandler<Guid,UpdateDepartmentSlugCommand> handler,
         [FromBody] UpdateDepartmentSlugRequest request,
         CancellationToken cancellationToken)
     {
-        return await _departmentsService.UpdateDepartmentSlug(request, cancellationToken);
+        var command = new UpdateDepartmentSlugCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
 
