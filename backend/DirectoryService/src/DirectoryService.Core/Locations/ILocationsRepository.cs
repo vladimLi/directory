@@ -12,6 +12,4 @@ public interface ILocationsRepository
     Task<Result<Location,Shared.Errors>> GetByIdAsync(
         LocationId locationId,
         CancellationToken cancellationToken);
-
-    Task<UnitResult<Shared.Errors>> Save(CancellationToken cancellationToken);
  }

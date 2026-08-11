@@ -23,10 +23,7 @@ public class EfCoreLocationsRepository: ILocationsRepository
     {
         try
         {
-            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             await _context.Locations.AddAsync(location, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
         
             return Result.Success<Guid, Errors>(location.Id.Value);
         }
@@ -61,22 +58,5 @@ public class EfCoreLocationsRepository: ILocationsRepository
                 Fails.LocationsError.LocationNotFoundException(locationId.Value));
         
         return Result.Success<Location, Errors>(location);
-    }
-
-    public async Task<UnitResult<Errors>> Save(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-            return UnitResult.Success<Errors>();
-        }
-        catch  (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
-        {
-            _logger.LogError(ex, "Ошибка при сохранении изменений в БД");
-
-            return UnitResult.Failure(
-                Fails.LocationsError.SaveFailedException(ex.Message)
-            );
-        }
     }
 }

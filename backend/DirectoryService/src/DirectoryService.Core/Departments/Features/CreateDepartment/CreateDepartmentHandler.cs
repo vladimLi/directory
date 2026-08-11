@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments.Errors;
 using DirectoryService.Core.Extensions;
 using DirectoryService.Domain.Departments;
@@ -12,41 +13,54 @@ using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Core.Departments.Features.CreateDepartment;
 
-public class CreateDepartmentHandler:
+public class CreateDepartmentHandler :
     ICommandHandler<Guid, CreateDepartmentCommand>
 {
     private readonly IDepartmentsRepository _repository;
     private readonly ILogger<CreateDepartmentHandler> _logger;
     private readonly IValidator<CreateDepartmentRequest> _validator;
-    
+    private readonly ITransactionManager _transactionManager;
+
     public CreateDepartmentHandler(
         IDepartmentsRepository repository,
         ILogger<CreateDepartmentHandler> logger,
-        IValidator<CreateDepartmentRequest> validator)
+        IValidator<CreateDepartmentRequest> validator,
+        ITransactionManager transactionManager)
     {
         _repository = repository;
         _logger = logger;
         _validator = validator;
-        
+        _transactionManager = transactionManager;
     }
-    
+
     public async Task<Result<Guid, Shared.Errors>> Handle(CreateDepartmentCommand command,
         CancellationToken cancellationToken)
     {
+        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
+        if (transactionScopeResult.IsFailure)
+            return transactionScopeResult.Error;
+
+
+        using var transactionScope = transactionScopeResult.Value;
+
         //Проверка валидности входных данных
         var validationResult = await _validator.ValidateAsync(command.Request, cancellationToken);
-
         if (!validationResult.IsValid)
+        {
+            transactionScope.Rollback();
             return validationResult.ToErrors();
+        }
 
         //Проверка валидности бизнес логики
 
         var locationIds = command.Request.LocationIds.Select(g => LocationId.Create(g).Value).ToList();
 
         var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
-
         if (isValid.IsFailure)
+        {
+            transactionScope.Rollback();
             return isValid.Error;
+        }
 
         //Создание сущности
         var parentDepartment = new Result<Department, Shared.Errors>();
@@ -55,12 +69,17 @@ public class CreateDepartmentHandler:
         {
             var parentId = DepartmentId.Create(command.Request.ParentId.Value);
             if (parentId.IsFailure)
+            {
+                transactionScope.Rollback();
                 return parentId.Error;
+            }
 
             parentDepartment = await _repository.GetByIdAsync(parentId.Value, cancellationToken);
-
             if (parentDepartment.IsFailure)
+            {
+                transactionScope.Rollback();
                 return Fails.DepartmentError.ParentDepartmentNotFoundException(parentId.Value.Value);
+            }
         }
 
         var department = Department.Create(
@@ -70,7 +89,10 @@ public class CreateDepartmentHandler:
             parentDepartment.Value?.Id
         );
         if (department.IsFailure)
+        {
+            transactionScope.Rollback();
             return department.Error;
+        }
 
         var departmentLocations = new List<DepartmentLocation>();
 
@@ -79,15 +101,36 @@ public class CreateDepartmentHandler:
             var dlResult = DepartmentLocation.Create(department.Value.Id.Value, rawId);
 
             if (dlResult.IsFailure)
+            {
+                transactionScope.Rollback();
                 return dlResult.Error;
+            }
 
             departmentLocations.Add(dlResult.Value);
         }
 
         //Сохранение в БД
-        var result = await _repository.AddAsync(department.Value, departmentLocations, cancellationToken);
-        if (result.IsFailure)
-            return result.Error;
+        var addResult = await _repository.AddAsync(department.Value, departmentLocations, cancellationToken);
+        if (addResult.IsFailure)
+        {
+            transactionScope.Rollback();
+            return addResult.Error;
+        }
+        
+        var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+        if (saveResult.IsFailure)
+        {
+            transactionScope.Rollback();
+            return saveResult.Error;
+        }
+        
+        var commitedResult =  transactionScope.Commit();
+        if (commitedResult.IsFailure)
+        {
+            transactionScope.Rollback();
+            return commitedResult.Error;
+        }
+        
         //Логирование
         _logger.LogInformation("Created department with id {DepartmentId}", department.Value.Id.Value);
         return department.Value.Id.Value;

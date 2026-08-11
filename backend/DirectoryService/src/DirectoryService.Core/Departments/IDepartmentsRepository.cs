@@ -22,6 +22,4 @@ public interface IDepartmentsRepository
      Task<Result<bool, Shared.Errors>> LocationExistsAsync(
         IReadOnlyCollection<LocationId> locationIds,
         CancellationToken cancellationToken);
-
-     Task<UnitResult<Shared.Errors>> Save(CancellationToken cancellationToken);
 }
