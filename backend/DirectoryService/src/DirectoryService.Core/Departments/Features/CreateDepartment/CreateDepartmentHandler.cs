@@ -53,7 +53,20 @@ public class CreateDepartmentHandler :
 
         //Проверка валидности бизнес логики
 
-        var locationIds = command.Request.LocationIds.Select(g => LocationId.Create(g).Value).ToList();
+        var locationIds = new List<LocationId>();
+        
+        foreach (var rawId in command.Request.LocationIds)
+        {
+            var dlResult = LocationId.Create(rawId);
+
+            if (dlResult.IsFailure)
+            {
+                transactionScope.Rollback();
+                return dlResult.Error;
+            }
+
+            locationIds.Add(dlResult.Value);
+        }
 
         var isValid = await _repository.LocationExistsAsync(locationIds, cancellationToken);
         if (isValid.IsFailure)

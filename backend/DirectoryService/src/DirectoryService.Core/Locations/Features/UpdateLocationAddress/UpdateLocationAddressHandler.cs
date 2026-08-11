@@ -46,7 +46,12 @@ public class UpdateLocationAddressHandler : ICommandHandler<Guid, UpdateLocation
         }
 
         var locationId = LocationId.Create(command.Request.Id);
-
+        if (locationId.IsFailure)
+        {
+            transactionScope.Rollback();
+            return locationId.Error;
+        }
+        
         var location = await _repository.GetByIdAsync(locationId.Value, cancellationToken);
         if (location.IsFailure)
         {

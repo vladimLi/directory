@@ -26,7 +26,7 @@ public class TransactionManager : ITransactionManager
             var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             var transactionScopeLogger = _loggerFactory.CreateLogger<TransactionScope>();
-            var transactionScope = new TransactionScope(transaction.GetDbTransaction(), transactionScopeLogger);
+            var transactionScope = new TransactionScope(transaction, transactionScopeLogger);
             return transactionScope;
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)

@@ -2,6 +2,7 @@ using System.Data;
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Shared;
 
@@ -9,11 +10,11 @@ namespace DirectoryService.Infrastructure.Postgres.Database;
 
 public class TransactionScope : ITransactionScope
 {
-    private readonly IDbTransaction _transaction;
+    private readonly IDbContextTransaction _transaction;
     private readonly ILogger<TransactionScope> _logger;
     private bool _disposed;
 
-    public TransactionScope(IDbTransaction transaction, ILogger<TransactionScope> logger)
+    public TransactionScope(IDbContextTransaction transaction, ILogger<TransactionScope> logger)
     {
         _transaction = transaction;
         _logger = logger;
@@ -60,11 +61,8 @@ public class TransactionScope : ITransactionScope
 
         if (disposing)
         {
-            // освобождаем managed ресурсы
-            _transaction?.Dispose();
+            _transaction.Dispose();
         }
-
-        // освобождение unmanaged ресурсов (если бы были)
 
         _disposed = true;
     }
