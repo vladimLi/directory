@@ -50,6 +50,11 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         
         //Проверка валидности бизнес логики
         var locationName = LocationName.Create(command.Request.Name);
+        if (locationName.IsFailure)
+        {
+            transactionScope.Rollback();
+            return locationName.Error;
+        }
         
         var nameExists = await _repository.ExistsWithNameAsync(locationName.Value, cancellationToken);
         if (nameExists.IsFailure)
