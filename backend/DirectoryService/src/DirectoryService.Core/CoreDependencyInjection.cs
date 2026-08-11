@@ -1,4 +1,5 @@
 using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Relationships;
@@ -15,9 +16,9 @@ public static class CoreDependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         var assembly = typeof(CoreDependencyInjection).Assembly;
-        services
-            .AddValidatorsFromAssembly(assembly);
-
+        
+        services.AddValidatorsFromAssembly(assembly);
+        
         services.Scan(scan => scan.FromAssemblies(assembly)
             .AddClasses(classes => classes.AssignableToAny(
                 typeof(ICommandHandler<,>),
