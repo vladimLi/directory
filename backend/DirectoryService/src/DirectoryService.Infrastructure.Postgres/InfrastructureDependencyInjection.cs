@@ -1,3 +1,4 @@
+using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Relationships;
@@ -19,8 +20,9 @@ public static class InfrastructureDependencyInjection
         var connectionString = configuration.GetConnectionString("AppDbContext")!;
         
         services.AddScoped<AppDbContext>(_ => new AppDbContext(connectionString));
-
+        
         services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
+        services.AddScoped<ITransactionManager, TransactionManager>();
         
         services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
         services.AddScoped<IDepartmentsRepository, EfCoreDepartmentsRepository>();

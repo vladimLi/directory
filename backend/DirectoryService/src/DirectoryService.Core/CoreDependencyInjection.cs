@@ -18,8 +18,6 @@ public static class CoreDependencyInjection
         var assembly = typeof(CoreDependencyInjection).Assembly;
         
         services.AddValidatorsFromAssembly(assembly);
-
-        services.AddScoped<ITransactionManager, ITransactionManager>();
         
         services.Scan(scan => scan.FromAssemblies(assembly)
             .AddClasses(classes => classes.AssignableToAny(
