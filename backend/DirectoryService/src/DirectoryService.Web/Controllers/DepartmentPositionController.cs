@@ -14,8 +14,7 @@ public class DepartmentPositionController : ControllerBase
         [FromServices]ICommandHandler<Guid, CreateDepartmentPositionCommand> handler,
         Guid departmentId,
         Guid positionId,
-        CancellationToken cancellationToken,
-        bool isPrimary = false)
+        CancellationToken cancellationToken)
     {
         var command = new CreateDepartmentPositionCommand(departmentId, positionId);
         return await handler.Handle(

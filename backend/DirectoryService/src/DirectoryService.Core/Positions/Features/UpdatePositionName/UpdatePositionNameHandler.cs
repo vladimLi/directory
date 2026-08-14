@@ -59,7 +59,7 @@ public class UpdatePositionNameHandler
             return position.Error;
         }
         
-        var positionName = PositionName.Create(position.Value.Name.Value);
+        var positionName = PositionName.Create(command.Request.Name);
         if (positionName.IsFailure)
         {
             transactionScope.Rollback();
