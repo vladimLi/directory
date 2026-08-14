@@ -19,9 +19,9 @@ public class CreateDepartmentValidator: AbstractValidator<CreateDepartmentReques
 
         RuleFor(d => d.LocationIds)
             .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("nameRequest.location.ids"))
+            .WithError(GeneralErrors.ValueIsNull("request.location.ids"))
             .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("nameRequest.location.ids"))
+            .WithError(GeneralErrors.ValueIsEmpty("request.location.ids"))
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithError(GeneralErrors.ConditionIsInvalid(
                 "Идентификаторы местоположения должны содержать уникальные значения.",

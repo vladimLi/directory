@@ -78,6 +78,22 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
     {
         try
         {
+            var hasLocations = await _context.DepartmentLocation
+                .AnyAsync(dl => dl.DepartmentId == departmentId, cancellationToken);
+
+            if (hasLocations)
+                return Result.Failure<Guid, Errors>(
+                    Fails.DepartmentError.DepartmentHasRelationsLocationsException());
+            
+            
+            var hasPositions = await _context.DepartmentPosition
+                .AnyAsync(dp => dp.DepartmentId == departmentId, cancellationToken);
+
+            if (hasPositions)
+                return Result.Failure<Guid, Errors>(
+                    Fails.DepartmentError.DepartmentHasRelationsPositionsException());
+            
+            
             var department = await _context.Departments
                 .FirstOrDefaultAsync(
                     d => d.Id == departmentId,
@@ -86,6 +102,7 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
             if (department is null)
                 return Result.Failure<Guid, Errors>(
                     Fails.DepartmentError.DepartmentNotFoundException(departmentId.Value));
+            
             
             _context.Departments.Remove(department);
 

@@ -17,5 +17,9 @@ public static partial class  Fails
         public static Shared.Errors SaveFailedException(string details)
             => Error.Failure("position.save.failed", $"Не удалось сохранить должность: {details}")
                 .ToErrors();
+        
+        public static Shared.Errors PositionHasRelationsDepartmentsException()
+            => Error.Failure("position.has.relations.department", $"Должность имеет связь с департаментом")
+                .ToErrors();
     }
 }

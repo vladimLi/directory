@@ -64,6 +64,13 @@ public class EfCoreLocationsRepository: ILocationsRepository
     {
         try
         {
+            var hasDepartments = await _context.DepartmentLocation
+                .AnyAsync(dl => dl.LocationId == locationId, cancellationToken);
+
+            if (hasDepartments)
+                return Result.Failure<Guid, Errors>(
+                    Fails.LocationsError.LocationsHasRelationsDepartmentsException());
+            
             var location = await _context.Locations
                 .FirstOrDefaultAsync(
                     l => l.Id == locationId,

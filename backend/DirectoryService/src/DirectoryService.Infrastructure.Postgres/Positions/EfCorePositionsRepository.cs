@@ -66,6 +66,13 @@ public class EfCorePositionsRepository : IPositionRepository
     {
         try
         {
+            var hasDepartments = await _context.DepartmentPosition
+                .AnyAsync(dp => dp.PositionId == positionId, cancellationToken);
+
+            if (hasDepartments)
+                return Result.Failure<Guid, Errors>(
+                    Fails.PositionsError.PositionHasRelationsDepartmentsException());
+            
             var position = await _context.Positions
                 .FirstOrDefaultAsync(
                     p => p.Id == positionId,
