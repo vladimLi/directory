@@ -45,8 +45,7 @@ public class EfCorePositionsRepository : IPositionRepository
 
         if (exists)
             return Result.Failure<bool, Errors>(
-                Fails.PositionsError.PositionNameDuplicateException()
-            );
+                Fails.PositionsError.PositionNameDuplicateException());
         
         return Result.Success<bool, Errors>(exists);
     }

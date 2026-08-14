@@ -11,7 +11,7 @@ public class DepartmentPositionController : ControllerBase
 {
     [HttpPost("department/{departmentId:guid}/position/{positionId:guid}")]
     public async Task<EndpointResult<Guid>> Create(
-        ICommandHandler<Guid, CreateDepartmentPositionCommand> handler,
+        [FromServices]ICommandHandler<Guid, CreateDepartmentPositionCommand> handler,
         Guid departmentId,
         Guid positionId,
         CancellationToken cancellationToken,
