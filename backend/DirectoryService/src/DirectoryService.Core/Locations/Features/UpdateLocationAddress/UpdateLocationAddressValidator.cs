@@ -29,7 +29,7 @@ public class UpdateLocationAddressValidator : AbstractValidator<UpdateLocationAd
             .NotEmpty()
             .WithError(GeneralErrors.ValueIsEmpty("request.location.country"))
             .MaximumLength(LengthConstants.Length100)
-            .WithError(GeneralErrors.ValueLengthIsInvalid("nameRequest.location.country",
+            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.country",
                 $"Назавание страны не может превышать {LengthConstants.Length100}"));
         
         RuleFor(l => l.Address.Street)

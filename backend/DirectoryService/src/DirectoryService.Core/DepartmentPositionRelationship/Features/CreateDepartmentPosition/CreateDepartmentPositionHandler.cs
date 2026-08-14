@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
+using DirectoryService.Core.DepartmentPositionRelationship.Errors;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Positions.ValueObjects;
 using DirectoryService.Domain.Relationships;
@@ -75,6 +76,9 @@ public class CreateDepartmentPositionHandler : ICommandHandler<Guid, CreateDepar
             return linkExists.Error;
         }
 
+        if (linkExists.Value)
+            return Fails.DepartmentPositionError.DepartmentPositionExistsException();
+        
         //Создание сущности
         var departmentPosition = DepartmentPosition.Create(
             command.DepartmentId,

@@ -25,7 +25,7 @@ public class CreateDepartmentValidator: AbstractValidator<CreateDepartmentReques
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithError(GeneralErrors.ConditionIsInvalid(
                 "Идентификаторы местоположения должны содержать уникальные значения.",
-                "nameRequest.location.ids"));
+                "request.location.ids"));
 
         RuleForEach(d => d.LocationIds)
             .MustBeValueObject(LocationId.Create);

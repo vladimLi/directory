@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
+using DirectoryService.Core.DepartmentLocationRelationships.Errors;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
@@ -72,6 +73,9 @@ public class CreateDepartmentLocationHandler : ICommandHandler<Guid, CreateDepar
             transactionScope.Rollback();
             return linkExists.Error;
         }
+
+        if (linkExists.Value)
+            return Fails.DepartmentLocationError.DepartmentLocationExistsException();
         
         //Создание сущности
         var departmentLocation = DepartmentLocation.Create(

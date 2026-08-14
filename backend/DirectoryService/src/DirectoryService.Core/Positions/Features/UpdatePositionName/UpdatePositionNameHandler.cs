@@ -3,6 +3,7 @@ using DirectoryService.Contracts.Positions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Extensions;
+using DirectoryService.Core.Positions.Errors;
 using DirectoryService.Domain.Positions.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
@@ -56,6 +57,19 @@ public class UpdatePositionNameHandler
         {
             transactionScope.Rollback();
             return position.Error;
+        }
+        
+        var nameExists = await _repository.ExistsWithNameAsync(position.Value.Name, cancellationToken);
+        if (nameExists.IsFailure)
+        {
+            transactionScope.Rollback();
+            return nameExists.Error;
+        }
+
+        if (nameExists.Value)
+        {
+            transactionScope.Rollback();
+            return Fails.PositionsError.PositionNameDuplicateException();
         }
         
         var result = position.Value.UpdateName(command.Request.Name);

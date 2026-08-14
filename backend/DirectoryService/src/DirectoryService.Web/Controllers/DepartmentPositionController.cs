@@ -22,7 +22,7 @@ public class DepartmentPositionController : ControllerBase
             command,
             cancellationToken);
     }
-    [HttpDelete("department{departmentId:guid}/position/{positionId:guid}")]
+    [HttpDelete("department/{departmentId:guid}/position/{positionId:guid}")]
     public async Task<EndpointResult<Guid>> Delete(
         [FromServices] ICommandHandler<Guid, DeleteDepartmentPositionCommand> handler,
         [FromRoute] Guid departmentId,
