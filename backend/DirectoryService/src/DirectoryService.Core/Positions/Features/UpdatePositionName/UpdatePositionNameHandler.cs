@@ -66,17 +66,19 @@ public class UpdatePositionNameHandler
             return positionName.Error;
         }
         
-        var nameExists = await _repository.ExistsWithNameAsync(positionName.Value, cancellationToken);
-        if (nameExists.IsFailure)
+        if (position.Value.Name != positionName.Value)
         {
-            transactionScope.Rollback();
-            return nameExists.Error;
-        }
-
-        if (nameExists.Value)
-        {
-            transactionScope.Rollback();
-            return Fails.PositionsError.PositionNameDuplicateException();
+            var nameExists = await _repository.ExistsWithNameAsync(positionName.Value, cancellationToken);
+            if (nameExists.IsFailure)
+            {
+                transactionScope.Rollback();
+                return nameExists.Error;
+            }
+            if (nameExists.Value)
+            {
+                transactionScope.Rollback();
+                return Fails.PositionsError.PositionNameDuplicateException();
+            }
         }
         
         var result = position.Value.UpdateName(command.Request.Name);
