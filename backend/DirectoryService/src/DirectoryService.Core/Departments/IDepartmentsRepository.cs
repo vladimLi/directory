@@ -22,4 +22,8 @@ public interface IDepartmentsRepository
      Task<Result<bool, Shared.Errors>> LocationExistsAsync(
         IReadOnlyCollection<LocationId> locationIds,
         CancellationToken cancellationToken);
+
+     Task<Result<Guid, Shared.Errors>> DeleteAsync(
+         DepartmentId departmentId,
+         CancellationToken cancellationToken);
 }

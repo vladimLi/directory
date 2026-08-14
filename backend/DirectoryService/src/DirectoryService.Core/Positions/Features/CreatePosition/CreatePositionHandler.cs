@@ -1,45 +1,44 @@
 using CSharpFunctionalExtensions;
-using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Positions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Extensions;
-using DirectoryService.Domain.Departments.ValueObjects;
+using DirectoryService.Domain.Positions;
+using DirectoryService.Domain.Positions.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Core.Departments.Features;
+namespace DirectoryService.Core.Positions.Features.CreatePosition;
 
-public class UpdateDepartmentNameHandler :
-    ICommandHandler<Guid, UpdateDepartmentNameCommand>
+public class CreatePositionHandler
+:ICommandHandler<Guid, CreatePositionCommand>
 {
-    private readonly IDepartmentsRepository _repository;
-    private readonly ILogger<UpdateDepartmentNameHandler> _logger;
-    private readonly IValidator<UpdateDepartmentNameRequest> _validator;
+    private readonly IPositionRepository _repository;
+    private readonly ILogger<CreatePositionHandler> _logger;
+    private readonly IValidator<CreatePositionRequest> _validator;
     private readonly ITransactionManager _transactionManager;
 
-    public UpdateDepartmentNameHandler(
-        IDepartmentsRepository repository,
-        ILogger<UpdateDepartmentNameHandler> logger,
-        IValidator<UpdateDepartmentNameRequest> validator,
-        ITransactionManager  transactionManager)
+    public CreatePositionHandler(
+        IPositionRepository repository,
+        ILogger<CreatePositionHandler> logger,
+        IValidator<CreatePositionRequest> validator,
+        ITransactionManager transactionManager)
     {
         _repository = repository;
         _logger = logger;
         _validator = validator;
         _transactionManager = transactionManager;
     }
-
     public async Task<Result<Guid, Shared.Errors>> Handle(
-        UpdateDepartmentNameCommand command,
+        CreatePositionCommand command,
         CancellationToken cancellationToken)
     {
         var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
         if (transactionScopeResult.IsFailure)
             return transactionScopeResult.Error;
         
-        
         using var transactionScope = transactionScopeResult.Value;
-        //Проверка валидности входных данных
+        
         var validationResult = await _validator.ValidateAsync(command.Request, cancellationToken);
         if (!validationResult.IsValid)
         {
@@ -47,27 +46,33 @@ public class UpdateDepartmentNameHandler :
             return validationResult.ToErrors();
         }
         
-        var departmentId = DepartmentId.Create(command.Request.Id);
-        if (departmentId.IsFailure)
+        var positionName = PositionName.Create(command.Request.Name);
+        if (positionName.IsFailure)
         {
             transactionScope.Rollback();
-            return departmentId.Error;
-        }
-
-        var department = await _repository.GetByIdAsync(departmentId.Value, cancellationToken);
-        if (department.IsFailure)
-        {
-            transactionScope.Rollback();
-            return department.Error;
+            return positionName.Error;
         }
         
-        var result = department.Value.UpdateName(command.Request.Name);
-        if (result.IsFailure)
+        var nameExists = await _repository.ExistsWithNameAsync(positionName.Value, cancellationToken);
+        if (nameExists.IsFailure)
         {
             transactionScope.Rollback();
-            return result.Error;
+            return nameExists.Error;
         }
         
+        var position =  Position.Create(positionName.Value.Value);
+        if (position.IsFailure)
+        {
+            transactionScope.Rollback();
+            return position.Error;
+        }
+        
+        var addResult = await _repository.AddAsync(position.Value, cancellationToken);
+        if (addResult.IsFailure)
+        {
+            transactionScope.Rollback();
+            return addResult.Error;
+        }
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
         if (saveResult.IsFailure)
         {
@@ -82,7 +87,7 @@ public class UpdateDepartmentNameHandler :
             return commitedResult.Error;
         }
         
-        _logger.LogInformation("update department name {DepartmentId}", department.Value.Id);
-        return department.Value.Id.Value;
+        _logger.LogInformation("Created position with id {PositionId}", position.Value.Id.Value);
+        return addResult.Value;
     }
 }

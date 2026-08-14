@@ -1,45 +1,42 @@
 using CSharpFunctionalExtensions;
-using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Positions;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Extensions;
-using DirectoryService.Domain.Departments.ValueObjects;
+using DirectoryService.Domain.Positions.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Core.Departments.Features;
+namespace DirectoryService.Core.Positions.Features.UpdatePositionName;
 
-public class UpdateDepartmentNameHandler :
-    ICommandHandler<Guid, UpdateDepartmentNameCommand>
+public class UpdatePositionNameHandler
+    : ICommandHandler<Guid, UpdatePositionNameCommand>
 {
-    private readonly IDepartmentsRepository _repository;
-    private readonly ILogger<UpdateDepartmentNameHandler> _logger;
-    private readonly IValidator<UpdateDepartmentNameRequest> _validator;
+    private readonly IPositionRepository _repository;
+    private readonly ILogger<UpdatePositionNameHandler> _logger;
+    private readonly IValidator<UpdatePositionNameRequest> _validator;
     private readonly ITransactionManager _transactionManager;
 
-    public UpdateDepartmentNameHandler(
-        IDepartmentsRepository repository,
-        ILogger<UpdateDepartmentNameHandler> logger,
-        IValidator<UpdateDepartmentNameRequest> validator,
+    public UpdatePositionNameHandler(
+        IPositionRepository repository,
+        ILogger<UpdatePositionNameHandler> logger,
+        IValidator<UpdatePositionNameRequest> validator,
         ITransactionManager  transactionManager)
     {
         _repository = repository;
         _logger = logger;
         _validator = validator;
-        _transactionManager = transactionManager;
+        _transactionManager =  transactionManager;
     }
-
-    public async Task<Result<Guid, Shared.Errors>> Handle(
-        UpdateDepartmentNameCommand command,
+    public async Task<Result<Guid, Shared.Errors>> Handle(UpdatePositionNameCommand command,
         CancellationToken cancellationToken)
     {
         var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
         if (transactionScopeResult.IsFailure)
             return transactionScopeResult.Error;
         
-        
         using var transactionScope = transactionScopeResult.Value;
-        //Проверка валидности входных данных
+        
         var validationResult = await _validator.ValidateAsync(command.Request, cancellationToken);
         if (!validationResult.IsValid)
         {
@@ -47,21 +44,21 @@ public class UpdateDepartmentNameHandler :
             return validationResult.ToErrors();
         }
         
-        var departmentId = DepartmentId.Create(command.Request.Id);
-        if (departmentId.IsFailure)
+        var positionId = PositionId.Create(command.Request.Id);
+        if (positionId.IsFailure)
         {
             transactionScope.Rollback();
-            return departmentId.Error;
-        }
-
-        var department = await _repository.GetByIdAsync(departmentId.Value, cancellationToken);
-        if (department.IsFailure)
-        {
-            transactionScope.Rollback();
-            return department.Error;
+            return positionId.Error;
         }
         
-        var result = department.Value.UpdateName(command.Request.Name);
+        var position = await _repository.GetByIdAsync(positionId.Value, cancellationToken);
+        if (position.IsFailure)
+        {
+            transactionScope.Rollback();
+            return position.Error;
+        }
+        
+        var result = position.Value.UpdateName(command.Request.Name);
         if (result.IsFailure)
         {
             transactionScope.Rollback();
@@ -81,8 +78,8 @@ public class UpdateDepartmentNameHandler :
             transactionScope.Rollback();
             return commitedResult.Error;
         }
-        
-        _logger.LogInformation("update department name {DepartmentId}", department.Value.Id);
-        return department.Value.Id.Value;
+
+        _logger.LogInformation("Update position name {PositionId}", position.Value.Id.Value);
+        return position.Value.Id.Value;
     }
 }

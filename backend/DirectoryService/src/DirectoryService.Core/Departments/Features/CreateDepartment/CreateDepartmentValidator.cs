@@ -19,13 +19,13 @@ public class CreateDepartmentValidator: AbstractValidator<CreateDepartmentReques
 
         RuleFor(d => d.LocationIds)
             .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.ids"))
+            .WithError(GeneralErrors.ValueIsNull("nameRequest.location.ids"))
             .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.ids"))
+            .WithError(GeneralErrors.ValueIsEmpty("nameRequest.location.ids"))
             .Must(ids => ids.Distinct().Count() == ids.Count)
             .WithError(GeneralErrors.ConditionIsInvalid(
                 "Идентификаторы местоположения должны содержать уникальные значения.",
-                "request.location.ids"));
+                "nameRequest.location.ids"));
 
         RuleForEach(d => d.LocationIds)
             .MustBeValueObject(LocationId.Create);

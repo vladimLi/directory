@@ -5,7 +5,7 @@ using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
 using Shared;
 
-namespace DirectoryService.Core.Locations;
+namespace DirectoryService.Core.Locations.Features.UpdateLocationAddress;
 
 public class UpdateLocationAddressValidator : AbstractValidator<UpdateLocationAddressRequest>
 {
@@ -16,29 +16,29 @@ public class UpdateLocationAddressValidator : AbstractValidator<UpdateLocationAd
         
         RuleFor(l => l.Address.City)
             .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.city"))
+            .WithError(GeneralErrors.ValueIsNull("nameRequest.location.city"))
             .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.city"))
+            .WithError(GeneralErrors.ValueIsEmpty("nameRequest.location.city"))
             .MaximumLength(LengthConstants.Length100)
-            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.city",
+            .WithError(GeneralErrors.ValueLengthIsInvalid("nameRequest.location.city",
                 $"Назавание города не может превышать {LengthConstants.Length100}"));
         
         RuleFor(l => l.Address.Country)
             .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.country"))
+            .WithError(GeneralErrors.ValueIsNull("nameRequest.location.country"))
             .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.country"))
+            .WithError(GeneralErrors.ValueIsEmpty("nameRequest.location.country"))
             .MaximumLength(LengthConstants.Length100)
-            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.country",
+            .WithError(GeneralErrors.ValueLengthIsInvalid("nameRequest.location.country",
                 $"Назавание страны не может превышать {LengthConstants.Length100}"));
         
         RuleFor(l => l.Address.Street)
             .NotNull()
-            .WithError(GeneralErrors.ValueIsNull("request.location.street"))
+            .WithError(GeneralErrors.ValueIsNull("nameRequest.location.street"))
             .NotEmpty()
-            .WithError(GeneralErrors.ValueIsEmpty("request.location.street"))
+            .WithError(GeneralErrors.ValueIsEmpty("nameRequest.location.street"))
             .MaximumLength(LengthConstants.Length500)
-            .WithError(GeneralErrors.ValueLengthIsInvalid("request.location.street",
+            .WithError(GeneralErrors.ValueLengthIsInvalid("nameRequest.location.street",
                 $"Назавание улицы не может превышать {LengthConstants.Length500}"));
         
         RuleFor(l => l.Address)

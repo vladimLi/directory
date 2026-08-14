@@ -59,4 +59,31 @@ public class EfCoreLocationsRepository: ILocationsRepository
         
         return Result.Success<Location, Errors>(location);
     }
+
+    public async Task<Result<Guid, Errors>> DeleteAsync(LocationId locationId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var location = await _context.Locations
+                .FirstOrDefaultAsync(
+                    l => l.Id == locationId,
+                    cancellationToken);
+
+            if (location is null)
+                return Result.Failure<Guid, Errors>(
+                    Fails.LocationsError.LocationNotFoundException(locationId.Value));
+            
+            _context.Locations.Remove(location);
+
+            return Result.Success<Guid, Errors>(location.Id.Value);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+        {
+            _logger.LogError(ex, "Ошибка при удалении локации");
+
+            return Result.Failure<Guid, Errors>(
+                Fails.LocationsError.SaveFailedException(ex.Message)
+            );
+        }
+    }
 }

@@ -3,7 +3,7 @@ using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Departments.Features;
 using DirectoryService.Core.Departments.Features.CreateDepartment;
-using DirectoryService.Core.Departments.Features.UpdateDepartmentName;
+using DirectoryService.Core.Departments.Features.DeleteDepartment;
 using DirectoryService.Core.Departments.Features.UpdateDepartmentSlug;
 using DirectoryService.Web.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
@@ -83,15 +83,12 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(
+    public async Task<EndpointResult<Guid>> Delete(
+        [FromServices] ICommandHandler<Guid, DeleteDepartmentCommand> handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-        {
-            return NotFound();
-        }
-
-        return NoContent();
+        var command = new DeleteDepartmentCommand(id);
+        return await handler.Handle(command, cancellationToken);
     }
 }
