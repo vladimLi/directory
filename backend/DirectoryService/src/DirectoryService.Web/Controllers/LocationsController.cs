@@ -1,10 +1,11 @@
 ﻿using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Locations;
-using DirectoryService.Core.Locations.Features.CreateLocation;
-using DirectoryService.Core.Locations.Features.DeleteLocation;
-using DirectoryService.Core.Locations.Features.UpdateLocationAddress;
-using DirectoryService.Core.Locations.Features.UpdateLocationName;
+using DirectoryService.Core.Locations.Commands.CreateLocation;
+using DirectoryService.Core.Locations.Commands.DeleteLocation;
+using DirectoryService.Core.Locations.Commands.UpdateLocationAddress;
+using DirectoryService.Core.Locations.Commands.UpdateLocationName;
+using DirectoryService.Core.Locations.Queries;
 using DirectoryService.Web.EndpointResults;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -26,19 +27,12 @@ public class LocationsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(
+    public async Task<EndpointResult<GetLocationByIdResponse?>> GetById(
+        [FromServices] GetLocationByIdHandler handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-        {
-            return NotFound();
-        }
-
-        var response = new LocationResponse(id,
-            "Stub location",
-            new LocationAddressDto("Main Street", "Moscow", "Russia"));
-        return Ok(response);
+        return await handler.Handle(new GetLocationByIdRequest(id), cancellationToken);
     }
 
     [HttpPatch("name")]

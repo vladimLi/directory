@@ -24,10 +24,11 @@ public static class InfrastructureDependencyInjection
         var connectionString = configuration.GetConnectionString("AppDbContext")!;
         
         services.AddScoped<AppDbContext>(_ => new AppDbContext(connectionString));
+        services.AddScoped<IReadDbContext, AppDbContext>(_ => new AppDbContext(connectionString));
         
         services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
         services.AddScoped<ITransactionManager, TransactionManager>();
-        
+       
         services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
         services.AddScoped<IDepartmentsRepository, EfCoreDepartmentsRepository>();
         services.AddScoped<IPositionRepository, EfCorePositionsRepository>();

@@ -1,10 +1,10 @@
 ﻿using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Departments;
-using DirectoryService.Core.Departments.Features;
-using DirectoryService.Core.Departments.Features.CreateDepartment;
-using DirectoryService.Core.Departments.Features.DeleteDepartment;
-using DirectoryService.Core.Departments.Features.UpdateDepartmentSlug;
+using DirectoryService.Core.Departments.Commands;
+using DirectoryService.Core.Departments.Commands.CreateDepartment;
+using DirectoryService.Core.Departments.Commands.DeleteDepartment;
+using DirectoryService.Core.Departments.Commands.UpdateDepartmentSlug;
+using DirectoryService.Core.Departments.Queries;
 using DirectoryService.Web.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,32 +25,26 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(
+    public async Task<EndpointResult<GetDepartmentByIdResponse?>> GetById(
+        [FromServices] GetDepartmentByIdHandler handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-        {
-            return NotFound();
-        }
-
-        var response = new DepartmentResponse(id, "Stub department", "stub-department");
-        return Ok(response);
+        return await handler.Handle(new GetDepartmentByIdRequest(id), cancellationToken);
     }
 
     [HttpPatch("name")]
     public async Task<EndpointResult<Guid>> UpdateDepartmentName(
-        [FromServices] ICommandHandler<Guid,UpdateDepartmentNameCommand> handler,
+        [FromServices] ICommandHandler<Guid, UpdateDepartmentNameCommand> handler,
         [FromBody] UpdateDepartmentNameRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new UpdateDepartmentNameCommand(request);
-        return await handler.Handle(command, cancellationToken);
+        return await handler.Handle( new UpdateDepartmentNameCommand(request), cancellationToken);
     }
 
     [HttpPatch("slug")]
     public async Task<EndpointResult<Guid>> UpdateDepartmentSlug(
-        [FromServices] ICommandHandler<Guid,UpdateDepartmentSlugCommand> handler,
+        [FromServices] ICommandHandler<Guid, UpdateDepartmentSlugCommand> handler,
         [FromBody] UpdateDepartmentSlugRequest request,
         CancellationToken cancellationToken)
     {

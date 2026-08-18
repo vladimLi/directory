@@ -1,7 +1,9 @@
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments;
+using DirectoryService.Core.Departments.Queries;
 using DirectoryService.Core.Locations;
+using DirectoryService.Core.Locations.Queries;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +26,8 @@ public static class CoreDependencyInjection
                 typeof(ICommandHandler<>)))
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
-        
+        services.AddScoped<GetDepartmentByIdHandler>();
+        services.AddScoped<GetLocationByIdHandler>();
         return services;
     }
 }

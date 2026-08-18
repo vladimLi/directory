@@ -25,10 +25,16 @@ public class EndpointResult<TValue> : IResult, IEndpointMetadataProvider
             : new ErrorsResult(result.Error);
     }
 
+    public EndpointResult(TValue value)
+    {
+        _result = new SuccessResult<TValue>(value);
+    }
+
     public Task ExecuteAsync(HttpContext httpContext)
         => _result.ExecuteAsync(httpContext);
 
     public static implicit operator EndpointResult<TValue>(Result<TValue, Error> result) => new(result);
+    public static implicit operator EndpointResult<TValue>(TValue result) => new(result);
 
     public static implicit operator EndpointResult<TValue>(Result<TValue, Errors> result) => new(result);
 #pragma warning disable CA1000

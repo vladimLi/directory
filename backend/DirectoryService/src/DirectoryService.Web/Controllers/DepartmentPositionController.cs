@@ -1,6 +1,6 @@
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.DepartmentPositionRelationship.Features.CreateDepartmentPosition;
-using DirectoryService.Core.DepartmentPositionRelationship.Features.DeleteDepartmentPosition;
+using DirectoryService.Core.DepartmentPositionRelationship.Commands.CreateDepartmentPosition;
+using DirectoryService.Core.DepartmentPositionRelationship.Commands.DeleteDepartmentPosition;
 using DirectoryService.Web.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 
