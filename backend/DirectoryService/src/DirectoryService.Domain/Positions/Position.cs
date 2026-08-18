@@ -8,7 +8,7 @@ namespace DirectoryService.Domain.Positions
     public sealed class Position
     {
         public PositionId Id { get; } = null!;
-        public PositionName Name { get; } = null!;
+        public PositionName Name { get; private set; } = null!;
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
         //EF Core
@@ -31,6 +31,14 @@ namespace DirectoryService.Domain.Positions
                 return positionName.Error;
             
             return new Position(positionId.Value, positionName.Value);
+        }
+        public UnitResult<Errors> UpdateName(string name)
+        {
+            var newName = PositionName.Create(name);
+            if (newName.IsFailure)
+                return newName;
+            Name = newName.Value;
+            return UnitResult.Success<Errors>();
         }
     }
 }

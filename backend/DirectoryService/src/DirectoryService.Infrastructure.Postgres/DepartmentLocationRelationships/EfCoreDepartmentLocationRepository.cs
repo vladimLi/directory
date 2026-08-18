@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
-using DirectoryService.Core.Relationships;
-using DirectoryService.Core.Relationships.Errors;
+using DirectoryService.Core.DepartmentLocationRelationships;
+using DirectoryService.Core.DepartmentLocationRelationships.Errors;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
@@ -27,18 +27,13 @@ public class EfCoreDepartmentLocationRepository : IDepartmentLocationRepository
     {
         try
         {
-            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-
             await _context.DepartmentLocation.AddAsync(departmentLocation, cancellationToken);
-
-            await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-
+            
             return Result.Success<Guid, Errors>(departmentLocation.Id.Value);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
-            _logger.LogError(ex, "Ошибка при создании департамента");
+            _logger.LogError(ex, "Ошибка при создании связи департамента и локации");
 
             return Result.Failure<Guid, Errors>(
                 Fails.DepartmentLocationError.SaveFailedException(ex.Message));
@@ -91,8 +86,6 @@ public class EfCoreDepartmentLocationRepository : IDepartmentLocationRepository
     {
         try
         {
-            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-
             var departmentLocation = await _context.DepartmentLocation
                 .FirstOrDefaultAsync(
                     dl => dl.DepartmentId == departmentId && dl.LocationId == locationId,
@@ -102,11 +95,7 @@ public class EfCoreDepartmentLocationRepository : IDepartmentLocationRepository
                 return Result.Failure<Guid, Errors>(
                     Fails.DepartmentLocationError.DepartmentLocationNotFoundException());
             
-
             _context.DepartmentLocation.Remove(departmentLocation);
-
-            await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success<Guid, Errors>(departmentLocation.DepartmentId.Value);
         }

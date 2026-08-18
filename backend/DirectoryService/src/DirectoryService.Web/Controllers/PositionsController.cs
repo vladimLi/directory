@@ -1,4 +1,9 @@
 ﻿using DirectoryService.Contracts.Positions;
+using DirectoryService.Core.Abstractions;
+using DirectoryService.Core.Positions.Features.CreatePosition;
+using DirectoryService.Core.Positions.Features.DeletePosition;
+using DirectoryService.Core.Positions.Features.UpdatePositionName;
+using DirectoryService.Web.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -8,12 +13,13 @@ namespace DirectoryService.Web.Controllers;
 public class PositionsController : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Create(
+    public async Task<EndpointResult<Guid>> Create(
+        [FromServices] ICommandHandler<Guid, CreatePositionCommand> handler,
         [FromBody] CreatePositionRequest request,
         CancellationToken cancellationToken)
     {
-        var response = new PositionResponse(Guid.NewGuid(), request.Name);
-        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+        var command = new CreatePositionCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -38,31 +44,23 @@ public class PositionsController : ControllerBase
         return Ok(Array.Empty<PositionResponse>());
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(
-        [FromRoute] Guid id,
-        [FromBody] UpdatePositionRequest request,
+    [HttpPatch("name")]
+    public async Task<EndpointResult<Guid>> UpdatePositionName(
+        [FromServices] ICommandHandler<Guid, UpdatePositionNameCommand> handler,
+        [FromBody] UpdatePositionNameRequest request,
         CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-        {
-            return NotFound();
-        }
-
-        var response = new PositionResponse(id, request.Name);
-        return Ok(response);
+        var command = new UpdatePositionNameCommand(request);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(
+    public async Task<EndpointResult<Guid>> Delete(
+        [FromServices] ICommandHandler<Guid, DeletePositionCommand> handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-        {
-            return NotFound();
-        }
-
-        return NoContent();
+        var command = new DeletePositionCommand(id);
+        return await handler.Handle(command, cancellationToken);
     }
 }

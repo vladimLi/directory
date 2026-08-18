@@ -71,4 +71,50 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
         
         return Result.Success<bool, Errors>(exists);
     }
+
+    public async Task<Result<Guid, Errors>> DeleteAsync(
+        DepartmentId departmentId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var hasLocations = await _context.DepartmentLocation
+                .AnyAsync(dl => dl.DepartmentId == departmentId, cancellationToken);
+
+            if (hasLocations)
+                return Result.Failure<Guid, Errors>(
+                    Fails.DepartmentError.DepartmentHasRelationsLocationsException());
+            
+            
+            var hasPositions = await _context.DepartmentPosition
+                .AnyAsync(dp => dp.DepartmentId == departmentId, cancellationToken);
+
+            if (hasPositions)
+                return Result.Failure<Guid, Errors>(
+                    Fails.DepartmentError.DepartmentHasRelationsPositionsException());
+            
+            
+            var department = await _context.Departments
+                .FirstOrDefaultAsync(
+                    d => d.Id == departmentId,
+                    cancellationToken);
+
+            if (department is null)
+                return Result.Failure<Guid, Errors>(
+                    Fails.DepartmentError.DepartmentNotFoundException(departmentId.Value));
+            
+            
+            _context.Departments.Remove(department);
+
+            return Result.Success<Guid, Errors>(department.Id.Value);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+        {
+            _logger.LogError(ex, "Ошибка при удалении департамента");
+
+            return Result.Failure<Guid, Errors>(
+                Fails.DepartmentError.SaveFailedException(ex.Message)
+            );
+        }
+    }
 }

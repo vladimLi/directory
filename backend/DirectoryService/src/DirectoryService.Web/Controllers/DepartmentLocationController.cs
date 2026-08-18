@@ -1,7 +1,6 @@
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Relationships;
-using DirectoryService.Core.Relationships.Features.CreateDepartmentLocation;
-using DirectoryService.Core.Relationships.Features.DeleteDepartmentLocation;
+using DirectoryService.Core.DepartmentLocationRelationships.Features.CreateDepartmentLocation;
+using DirectoryService.Core.DepartmentLocationRelationships.Features.DeleteDepartmentLocation;
 using DirectoryService.Web.EndpointResults;
 using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +42,7 @@ public class DepartmentLocationController : ControllerBase
     public async Task<EndpointResult<Guid>> Delete(
         [FromServices] ICommandHandler<Guid, DeleteDepartmentLocationCommand> handler,
         [FromRoute] Guid departmentId,
-        Guid locationId,
+        [FromRoute] Guid locationId,
         CancellationToken cancellationToken)
     {
         var command = new DeleteDepartmentLocationCommand(departmentId, locationId);

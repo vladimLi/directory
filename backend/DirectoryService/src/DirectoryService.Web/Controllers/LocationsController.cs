@@ -2,6 +2,7 @@
 using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Features.CreateLocation;
+using DirectoryService.Core.Locations.Features.DeleteLocation;
 using DirectoryService.Core.Locations.Features.UpdateLocationAddress;
 using DirectoryService.Core.Locations.Features.UpdateLocationName;
 using DirectoryService.Web.EndpointResults;
@@ -42,16 +43,17 @@ public class LocationsController : ControllerBase
 
     [HttpPatch("name")]
     public async Task<EndpointResult<Guid>> UpdateLocationName(
-        [FromServices]  ICommandHandler<Guid, UpdateLocationNameCommand> handler,
+        [FromServices] ICommandHandler<Guid, UpdateLocationNameCommand> handler,
         [FromBody] UpdateLocationNameRequest request,
         CancellationToken cancellationToken)
     {
         var command = new UpdateLocationNameCommand(request);
         return await handler.Handle(command, cancellationToken);
     }
+
     [HttpPatch("address")]
     public async Task<EndpointResult<Guid>> UpdateLocationAddress(
-        [FromServices]  ICommandHandler<Guid, UpdateLocationAddressCommand> handler,
+        [FromServices] ICommandHandler<Guid, UpdateLocationAddressCommand> handler,
         [FromBody] UpdateLocationAddressRequest request,
         CancellationToken cancellationToken)
     {
@@ -77,19 +79,18 @@ public class LocationsController : ControllerBase
         {
             return NotFound();
         }
+
         var response = new LocationResponse(id, request.Name, request.Address);
         return Ok(response);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(
+    public async Task<EndpointResult<Guid>> Delete(
+        [FromServices] ICommandHandler<Guid, DeleteLocationCommand> handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-        {
-            return NotFound();
-        }
-        return NoContent();
+        var command = new DeleteLocationCommand(id);
+        return await handler.Handle(command, cancellationToken);
     }
 }

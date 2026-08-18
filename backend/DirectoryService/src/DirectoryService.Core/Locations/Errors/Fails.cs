@@ -17,5 +17,9 @@ public static partial class Fails
         public static Shared.Errors SaveFailedException(string details)
             => Error.Failure("location.save.failed", $"Не удалось сохранить локацию: {details}")
                 .ToErrors();
+        
+        public static Shared.Errors LocationsHasRelationsDepartmentsException()
+            => Error.Failure("location.has.relations.department", $"Локация имеет связь с департаментом")
+                .ToErrors();
     }
 }

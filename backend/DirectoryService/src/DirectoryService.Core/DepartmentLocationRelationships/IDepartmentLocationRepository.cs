@@ -2,9 +2,8 @@ using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments.ValueObjects;
 using DirectoryService.Domain.Locations.ValueObjects;
 using DirectoryService.Domain.Relationships;
-using Shared;
 
-namespace DirectoryService.Core.Relationships;
+namespace DirectoryService.Core.DepartmentLocationRelationships;
 
 public interface IDepartmentLocationRepository
 {

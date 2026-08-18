@@ -1,6 +1,6 @@
 using Shared;
 
-namespace DirectoryService.Core.Relationships.Errors;
+namespace DirectoryService.Core.DepartmentLocationRelationships.Errors;
 
 public static partial class Fails
 {

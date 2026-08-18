@@ -5,7 +5,7 @@ using DirectoryService.Domain.Locations.ValueObjects;
 using FluentValidation;
 using Shared;
 
-namespace DirectoryService.Core.Locations;
+namespace DirectoryService.Core.Locations.Features.UpdateLocationAddress;
 
 public class UpdateLocationAddressValidator : AbstractValidator<UpdateLocationAddressRequest>
 {

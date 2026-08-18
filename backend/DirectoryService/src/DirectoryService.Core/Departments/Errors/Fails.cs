@@ -22,5 +22,12 @@ public static partial class Fails
         public static Shared.Errors LocationExistsException()
             => Error.Failure("locations.some.not.found", $"Некоторых локаций не существует")
                 .ToErrors();
+        
+        public static Shared.Errors DepartmentHasRelationsLocationsException()
+            => Error.Failure("department.has.relations.location", $"Департамент имеет связи с локациями")
+                .ToErrors();
+        public static Shared.Errors DepartmentHasRelationsPositionsException()
+            => Error.Failure("department.has.relations.position", $"Департамент имеет связи с должностями")
+                .ToErrors();
     }
 }
