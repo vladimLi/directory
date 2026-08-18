@@ -25,7 +25,7 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<EndpointResult<GetDepartmentByIdResponse?>> GetById(
+    public async Task<EndpointResult<GetDepartmentByIdResponse>> GetById(
         [FromServices] GetDepartmentByIdHandler handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)

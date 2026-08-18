@@ -1,5 +1,7 @@
+using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Database;
+using DirectoryService.Core.Locations.Errors;
 using DirectoryService.Domain.Locations.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,19 +16,19 @@ public class GetLocationByIdHandler
         _readDbContext = readDbContext;
     }
 
-    public async Task<GetLocationByIdResponse?> Handle(
+    public async Task<Result<GetLocationByIdResponse,Shared.Errors>> Handle(
         GetLocationByIdRequest request,
         CancellationToken cancellationToken)
     {
         var locationId = LocationId.Create(request.LocationId);
         if (locationId.IsFailure)
-            return null;
+            return locationId.Error;
 
         var location = await _readDbContext.LocationsRead
             .FirstOrDefaultAsync(d => d.Id == locationId.Value, cancellationToken);
 
         if (location is null)
-            return null;
+            return Fails.LocationsError.LocationNotFoundException(request.LocationId);
 
         return new GetLocationByIdResponse()
         {

@@ -27,7 +27,7 @@ public class LocationsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<EndpointResult<GetLocationByIdResponse?>> GetById(
+    public async Task<EndpointResult<GetLocationByIdResponse>> GetById(
         [FromServices] GetLocationByIdHandler handler,
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
