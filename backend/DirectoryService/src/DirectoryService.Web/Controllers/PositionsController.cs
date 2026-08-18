@@ -1,8 +1,8 @@
 ﻿using DirectoryService.Contracts.Positions;
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Positions.Features.CreatePosition;
-using DirectoryService.Core.Positions.Features.DeletePosition;
-using DirectoryService.Core.Positions.Features.UpdatePositionName;
+using DirectoryService.Core.Positions.Commands.CreatePosition;
+using DirectoryService.Core.Positions.Commands.DeletePosition;
+using DirectoryService.Core.Positions.Commands.UpdatePositionName;
 using DirectoryService.Web.EndpointResults;
 using Microsoft.AspNetCore.Mvc;
 

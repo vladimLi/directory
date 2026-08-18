@@ -10,7 +10,6 @@ public sealed class Location
     public LocationName Name { get; private set; } = null!;
     public LocationAddress Address { get; private set; } = null!;
     public DateTime CreatedAt { get; }
-
     public DateTime UpdatedAt { get; }
 
     //EF Core
