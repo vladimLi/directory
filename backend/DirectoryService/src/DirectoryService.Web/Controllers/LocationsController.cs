@@ -1,13 +1,11 @@
 ﻿using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Abstractions;
-using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Commands.CreateLocation;
 using DirectoryService.Core.Locations.Commands.DeleteLocation;
 using DirectoryService.Core.Locations.Commands.UpdateLocationAddress;
 using DirectoryService.Core.Locations.Commands.UpdateLocationName;
 using DirectoryService.Core.Locations.Queries;
 using DirectoryService.Web.EndpointResults;
-using DirectoryService.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DirectoryService.Web.Controllers;
@@ -26,6 +24,13 @@ public class LocationsController : ControllerBase
         return await handler.Handle(command, cancellationToken);
     }
 
+    [HttpGet("top")]
+    public async Task<EndpointResult<GetLocationsTopResponse>> GetLocationsTop(
+        [FromServices] GetLocationsTopHandler handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(cancellationToken);
+    }
     [HttpGet("{id:guid}")]
     public async Task<EndpointResult<GetLocationByIdResponse>> GetById(
         [FromServices] GetLocationByIdHandler handler,
