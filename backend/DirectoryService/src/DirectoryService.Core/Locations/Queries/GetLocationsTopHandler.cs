@@ -29,11 +29,11 @@ public class GetLocationsTopHandler
                   LEFT JOIN department_locations dl
                       ON dl.location_id = l.id
                   GROUP BY l.id, l.location_name, l.location_address
-                  ORDER BY "DepartmentCount" DESC
+                  ORDER BY "DepartmentCount" DESC, l.id
                   LIMIT 5;
                   """;
 
-        var items = await connection.QueryAsync<LocationTopDto>(sql);
+        var items = await connection.QueryAsync<LocationTopDto>(sql, cancellationToken);
 
         var response = new GetLocationsTopResponse(items.ToList());
         
