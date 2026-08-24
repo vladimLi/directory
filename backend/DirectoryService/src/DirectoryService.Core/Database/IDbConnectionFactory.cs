@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace DirectoryService.Infrastructure.Postgres.Database;
+namespace DirectoryService.Core.Database;
 
 public interface IDbConnectionFactory
 {

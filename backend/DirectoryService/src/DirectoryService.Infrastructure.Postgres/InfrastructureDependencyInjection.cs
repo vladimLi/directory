@@ -27,6 +27,7 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IReadDbContext, AppDbContext>(_ => new AppDbContext(connectionString));
         
         services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         services.AddScoped<ITransactionManager, TransactionManager>();
        
         services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
