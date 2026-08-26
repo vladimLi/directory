@@ -1,42 +1,47 @@
 using CSharpFunctionalExtensions;
-using Dapper;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Core.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Core.Locations.Queries;
 
 public class GetLocationsTopHandler
 {
-    private readonly IDbConnectionFactory _connectionFactory;
+    private readonly IReadDbContext _readDbContext;
 
-    public GetLocationsTopHandler(IDbConnectionFactory connectionFactory)
+    public GetLocationsTopHandler(IReadDbContext readDbContext)
     {
-        _connectionFactory = connectionFactory;
+        _readDbContext = readDbContext;
     }
 
     public async Task<Result<GetLocationsTopResponse, Shared.Errors>> Handle(
         CancellationToken cancellationToken)
     {
-        var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var locations = await _readDbContext.LocationsRead
+            .GroupJoin(
+                _readDbContext.DepartmentLocationRead,
+                l => l.Id,
+                dl => dl.LocationId,
+                (l, dl) => new
+                {
+                    l.Id,
+                    l.Name, // EF column
+                    l.Address, // EF column
+                    DepartmentCount = dl.Count()
+                })
+            .OrderByDescending(x => x.DepartmentCount)
+            .ThenBy(x => x.Id)
+            .Take(5)
+            .ToListAsync(cancellationToken);
 
-        var sql = """
-                  SELECT
-                      l.id AS "Id",
-                      l.location_name AS "Name",
-                      l.location_address AS "Address",
-                      COUNT(dl.department_id) AS "DepartmentCount"
-                  FROM locations l
-                  LEFT JOIN department_locations dl
-                      ON dl.location_id = l.id
-                  GROUP BY l.id, l.location_name, l.location_address
-                  ORDER BY "DepartmentCount" DESC, l.id
-                  LIMIT 5;
-                  """;
-
-        var items = await connection.QueryAsync<LocationTopDto>(sql, cancellationToken);
-
-        var response = new GetLocationsTopResponse(items.ToList());
+        var dto = locations.Select(x => new LocationTopDto()
+        {
+            Id = x.Id.Value,
+            Name = x.Name.Value, // now safe
+            Address = x.Address.Value,
+            DepartmentCount = x.DepartmentCount
+        }).ToList();
         
-        return Result.Success<GetLocationsTopResponse, Shared.Errors>(response);
+        return Result.Success<GetLocationsTopResponse, Shared.Errors>(new GetLocationsTopResponse(dto));
     }
 }

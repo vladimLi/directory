@@ -4,6 +4,9 @@ using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Positions;
 using DirectoryService.Domain.Relationships;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgres;
 
@@ -12,7 +15,12 @@ public class AppDbContext(string connectionString) : DbContext, IReadDbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseNpgsql(connectionString);
-
+        
+        optionsBuilder.UseLoggerFactory(new LoggerFactory(new[]
+        {
+            new SerilogLoggerProvider(Log.Logger)
+        }));
+        
         optionsBuilder.EnableDetailedErrors();
         
         optionsBuilder.EnableSensitiveDataLogging();
