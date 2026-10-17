@@ -27,6 +27,7 @@ public static class CoreDependencyInjection
             .AsSelfWithInterfaces()
             .WithScopedLifetime());
         services.AddScoped<GetDepartmentByIdHandler>();
+        services.AddScoped<GetDepartmentsHandler>();
         services.AddScoped<GetLocationByIdHandler>();
         services.AddScoped<GetLocationsTopHandler>();
         return services;
