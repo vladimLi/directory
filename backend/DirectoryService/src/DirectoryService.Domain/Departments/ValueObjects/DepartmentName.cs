@@ -7,7 +7,7 @@ public sealed record DepartmentName
 {
     public string Value { get; }
     private DepartmentName(string value) => Value = value;
-
+    public static implicit operator string(DepartmentName name) => name.Value;
     public static Result<DepartmentName,Errors> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))

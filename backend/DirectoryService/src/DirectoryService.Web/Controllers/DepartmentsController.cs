@@ -54,11 +54,12 @@ public class DepartmentsController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(
+    public async Task<EndpointResult<DepartmentListItemDto>> GetAll(
         [FromQuery] GetDepartmentsRequest request,
+        [FromServices] GetDepartmentsHandler handler,
         CancellationToken cancellationToken)
     {
-        return Ok(Array.Empty<DepartmentResponse>());
+        return await handler.Handle(request, cancellationToken);
     }
 
     [HttpPut("{id:guid}")]

@@ -18,30 +18,28 @@ public class GetLocationsTopHandler
         CancellationToken cancellationToken)
     {
         var locations = await _readDbContext.LocationsRead
-            .GroupJoin(
-                _readDbContext.DepartmentLocationRead,
-                l => l.Id,
-                dl => dl.LocationId,
-                (l, dl) => new
-                {
-                    l.Id,
-                    l.Name, // EF column
-                    l.Address, // EF column
-                    DepartmentCount = dl.Count()
-                })
+            .Select(l => new
+            {
+                Location = l,
+                DepartmentCount = _readDbContext.DepartmentLocationRead
+                    .Count(dl => dl.LocationId == l.Id)
+            })
             .OrderByDescending(x => x.DepartmentCount)
-            .ThenBy(x => x.Id)
+            .ThenBy(x => x.Location.Id)
             .Take(5)
             .ToListAsync(cancellationToken);
 
-        var dto = locations.Select(x => new LocationTopDto()
-        {
-            Id = x.Id.Value,
-            Name = x.Name.Value, // now safe
-            Address = x.Address.Value,
-            DepartmentCount = x.DepartmentCount
-        }).ToList();
-        
-        return Result.Success<GetLocationsTopResponse, Shared.Errors>(new GetLocationsTopResponse(dto));
+        var dto = locations
+            .Select(x => new LocationTopDto
+            {
+                Id = x.Location.Id.Value,
+                Name = x.Location.Name.Value,
+                Address = x.Location.Address.Value,
+                DepartmentCount = x.DepartmentCount
+            })
+            .ToList();
+
+        return Result.Success<GetLocationsTopResponse, Shared.Errors>(
+            new GetLocationsTopResponse(dto));
     }
 }

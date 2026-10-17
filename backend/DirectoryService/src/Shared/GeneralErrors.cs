@@ -25,7 +25,7 @@ public static class GeneralErrors
     public static Errors ValueLengthIsInvalid(string? entityName = null, string? details = null)
     {
         string label = entityName ?? "value";
-        return Error.Validation($"{label}.length.is.invalid",$"Некорретная длина {label}: {details}")
+        return Error.Validation($"{label}.length.is.invalid",$"Некорректная длина {label}: {details}")
             .ToErrors();
     }
 
