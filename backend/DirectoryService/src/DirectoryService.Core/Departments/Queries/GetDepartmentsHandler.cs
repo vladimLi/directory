@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Core.Database;
 using DirectoryService.Core.Departments.Queries.Enumerations;
+using DirectoryService.Core.Enumerations;
 using DirectoryService.Domain;
 using Microsoft.EntityFrameworkCore;
 using Shared;

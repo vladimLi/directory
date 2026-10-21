@@ -1,3 +1,10 @@
+using DirectoryService.Contracts.Departments;
+
 namespace DirectoryService.Contracts.Locations;
 
-public record GetLocationsRequest(string? Search = null);
+public record GetLocationsRequest(
+    string? Search,
+    int? MinDepartmentCount,
+    string? SortBy,
+    string? SortDirection,
+    PaginationRequest Pagination);

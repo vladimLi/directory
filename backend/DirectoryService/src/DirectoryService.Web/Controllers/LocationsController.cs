@@ -61,11 +61,12 @@ public class LocationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(
+    public async Task<EndpointResult<LocationListItemDto>> GetAll(
         [FromQuery] GetLocationsRequest request,
+        [FromServices] GetLocationsHandler handler,
         CancellationToken cancellationToken)
     {
-        return Ok(Array.Empty<LocationResponse>());
+        return await handler.Handle(request, cancellationToken);
     }
 
     [HttpPut("{id:guid}")]
