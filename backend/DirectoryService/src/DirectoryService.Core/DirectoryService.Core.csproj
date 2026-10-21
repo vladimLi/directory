@@ -27,4 +27,8 @@
     <PackageReference Include="Serilog.Sinks.Seq" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Locations\Queries\Enumerations\" />
+  </ItemGroup>
+
 </Project>
