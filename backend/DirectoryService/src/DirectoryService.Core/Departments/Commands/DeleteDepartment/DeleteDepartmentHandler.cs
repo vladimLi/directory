@@ -22,7 +22,9 @@ public class DeleteDepartmentHandler
         _logger = logger;
         _transactionManager = transactionManager;
     }
-    public async Task<Result<Guid, Shared.Errors>> Handle(DeleteDepartmentCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Shared.Errors>> Handle(
+        DeleteDepartmentCommand command,
+        CancellationToken cancellationToken)
     {
         var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
         if (transactionScopeResult.IsFailure)
@@ -37,14 +39,20 @@ public class DeleteDepartmentHandler
             return departmentId.Error;
         }
         
-        var department = await  _repository.DeleteAsync(departmentId.Value, cancellationToken);
+        var department = await  _repository.GetByAsync(
+            d => d.Id == departmentId.Value,
+            cancellationToken);
+        
         if (department.IsFailure)
         {
             transactionScope.Rollback();
             return department.Error;
         }
+
+        department.Value.SoftDelete();
         
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+        
         if (saveResult.IsFailure)
         {
             transactionScope.Rollback();

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Xml.Linq;
 using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Departments;
@@ -17,6 +18,10 @@ public interface IDepartmentsRepository
     
     Task<Result<Department, Shared.Errors>> GetByIdAsync(
         DepartmentId departmentId,
+        CancellationToken cancellationToken);
+    
+    Task<Result<Department, Shared.Errors>> GetByAsync(
+        Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken);
 
      Task<Result<bool, Shared.Errors>> LocationExistsAsync(

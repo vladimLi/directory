@@ -9,8 +9,10 @@ namespace DirectoryService.Domain.Positions
     {
         public PositionId Id { get; } = null!;
         public PositionName Name { get; private set; } = null!;
+        public bool IsDeleted { get; private set; }
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
+        public DateTime DeletedAt { get; private set; }
         //EF Core
         public Position(){}
         private Position(PositionId id, PositionName name)
@@ -38,6 +40,15 @@ namespace DirectoryService.Domain.Positions
             if (newName.IsFailure)
                 return newName;
             Name = newName.Value;
+            return UnitResult.Success<Errors>();
+        }
+        public UnitResult<Errors> SoftDelete()
+        {
+            if (IsDeleted)
+                return UnitResult.Success<Errors>();
+        
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
             return UnitResult.Success<Errors>();
         }
     }

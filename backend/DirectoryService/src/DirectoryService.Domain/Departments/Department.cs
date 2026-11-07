@@ -11,8 +11,10 @@ public sealed class Department
     public DepartmentSlug Slug { get; private set; } = null!;
     public DepartmentPath Path { get; } = null!;
     public DepartmentId? ParentId { get; }
+    public bool IsDeleted { get; private set; }
     public DateTime CreatedAt { get; }
     public DateTime UpdatedAt { get; }
+    public DateTime DeletedAt { get; private set; }
     //EF Core
     private Department(){}
     private Department(
@@ -73,6 +75,16 @@ public sealed class Department
         if (newSlug.IsFailure)
             return newSlug.Error;
         Slug = newSlug.Value;
+        return UnitResult.Success<Errors>();
+    }
+
+    public UnitResult<Errors> SoftDelete()
+    {
+        if (IsDeleted)
+            return UnitResult.Success<Errors>();
+        
+        IsDeleted = true;
+        DeletedAt = DateTime.UtcNow;
         return UnitResult.Success<Errors>();
     }
 }

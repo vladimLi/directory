@@ -39,14 +39,19 @@ public class DeletePositionHandler : ICommandHandler<Guid, DeletePositionCommand
             return positionId.Error;
         }
         
-        var position = await  _repository.DeleteAsync(positionId.Value, cancellationToken);
+        var position = await  _repository.GetByAsync(
+            p => p.Id == positionId.Value,
+            cancellationToken);
         if (position.IsFailure)
         {
             transactionScope.Rollback();
             return position.Error;
         }
+
+        position.Value.SoftDelete();
         
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+        
         if (saveResult.IsFailure)
         {
             transactionScope.Rollback();
