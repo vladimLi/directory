@@ -7,4 +7,7 @@
     <Project Path="src/DirectoryService.Web/DirectoryService.Web.csproj" />
     <Project Path="src/Shared/Shared.csproj" />
   </Folder>
+  <Folder Name="/src/Tests/">
+    <Project Path="src/Tests/DirectoryService.IntegrationTests/DirectoryService.IntegrationTests.csproj" />
+  </Folder>
 </Solution>
