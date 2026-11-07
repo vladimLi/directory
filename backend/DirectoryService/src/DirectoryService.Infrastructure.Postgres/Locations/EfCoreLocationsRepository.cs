@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Locations;
 using DirectoryService.Core.Locations.Errors;
@@ -56,6 +58,17 @@ public class EfCoreLocationsRepository: ILocationsRepository
         if (location == null)
             return Result.Failure<Location, Errors>(
                 Fails.LocationsError.LocationNotFoundException(locationId.Value));
+        
+        return Result.Success<Location, Errors>(location);
+    }
+
+    public async Task<Result<Location, Errors>> GetByAsync(Expression<Func<Location, bool>> predicate, CancellationToken cancellationToken)
+    {
+        Location? location = await _context.Locations.FirstOrDefaultAsync(predicate, cancellationToken);
+        
+        if (location == null)
+            return Result.Failure<Location, Errors>(
+                Fails.LocationsError.LocationNotFoundException(null));
         
         return Result.Success<Location, Errors>(location);
     }

@@ -58,41 +58,47 @@ public class GetLocationsHandler
             Offset = offset
         };
 
-        const string sqlPrefix = """
-                                 WITH location_stats AS (
-                                     SELECT
-                                         l.id AS "Id",
-                                         l.location_name AS "Name",
-                                         l.location_address AS "Address",
-                                         l.created_at AS "CreatedAt",
-                                         COUNT(dl.department_id)::int AS "DepartmentCount"
-                                     FROM locations AS l
-                                     LEFT JOIN department_locations AS dl
-                                         ON dl.location_id = l.id
-                                     GROUP BY
-                                         l.id,
-                                         l.location_name,
-                                         l.location_address,
-                                         l.created_at
-                                 ),
-                                 filtered_locations AS (
-                                     SELECT *
-                                     FROM location_stats
-                                     WHERE
-                                         (
-                                             @Search IS NULL
-                                             OR "Name" ILIKE '%' || @Search || '%'
-                                         )
-                                         AND (
-                                             @MinDepartmentCount IS NULL
-                                             OR "DepartmentCount" >= @MinDepartmentCount
-                                         )
-                                 ),
-                                 paged_locations AS (
-                                     SELECT *
-                                     FROM filtered_locations
-                                     ORDER BY
-                                 """;
+        // Soft-delete: фильтр в одном месте — SoftDeleteSql.
+        // WHERE до GROUP BY — чтобы удалённые локации не попадали в статистику,
+        // а COUNT(d.id) с фильтром на departments не считал связи с удалёнными департаментами.
+        var sqlPrefix = $"""
+                         WITH location_stats AS (
+                             SELECT
+                                 l.id AS "Id",
+                                 l.location_name AS "Name",
+                                 l.location_address AS "Address",
+                                 l.created_at AS "CreatedAt",
+                                 COUNT(d.id)::int AS "DepartmentCount"
+                             FROM locations AS l
+                             LEFT JOIN department_locations AS dl
+                                 ON dl.location_id = l.id
+                             LEFT JOIN departments AS d
+                                 ON d.id = dl.department_id AND {SoftDeleteSql.DepartmentActive}
+                             WHERE {SoftDeleteSql.LocationActive}
+                             GROUP BY
+                                 l.id,
+                                 l.location_name,
+                                 l.location_address,
+                                 l.created_at
+                         ),
+                         filtered_locations AS (
+                             SELECT *
+                             FROM location_stats
+                             WHERE
+                                 (
+                                     @Search IS NULL
+                                     OR "Name" ILIKE '%' || @Search || '%'
+                                 )
+                                 AND (
+                                     @MinDepartmentCount IS NULL
+                                     OR "DepartmentCount" >= @MinDepartmentCount
+                                 )
+                         ),
+                         paged_locations AS (
+                             SELECT *
+                             FROM filtered_locations
+                             ORDER BY
+                         """;
 
         var sql = $"""
                    {sqlPrefix}

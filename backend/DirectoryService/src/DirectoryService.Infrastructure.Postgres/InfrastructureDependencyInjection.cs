@@ -10,6 +10,7 @@ using DirectoryService.Infrastructure.Postgres.Departments;
 using DirectoryService.Infrastructure.Postgres.Locations;
 using DirectoryService.Infrastructure.Postgres.Positions;
 using DirectoryService.Infrastructure.Postgres.Relationships;
+using DirectoryService.Infrastructure.Postgres.SoftDelete;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,7 +36,12 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IPositionRepository, EfCorePositionsRepository>();
         services.AddScoped<IDepartmentLocationRepository, EfCoreDepartmentLocationRepository>();
         services.AddScoped<IDepartmentPositionRepository, EfCoreDepartmentPositionRepository>();
-        //services.AddScoped<ILocationsRepository, NpgSqlLocationsRepository>();
+        
+        services.Configure<SoftDeleteCleanupOptions>(
+            configuration.GetSection(SoftDeleteCleanupOptions.SectionName));
+
+        services.AddScoped<SoftDeleteCleanupProcessor>();
+        services.AddHostedService<SoftDeleteCleanupBackgroundService>();
         return services;
     }
 }

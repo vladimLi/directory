@@ -29,6 +29,15 @@ public class AppDbContext(string connectionString) : DbContext, IReadDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        
+        modelBuilder.Entity<Department>()
+            .HasQueryFilter(d => !d.IsDeleted);
+
+        modelBuilder.Entity<Location>()
+            .HasQueryFilter(l => !l.IsDeleted);
+
+        modelBuilder.Entity<Position>()
+            .HasQueryFilter(p => !p.IsDeleted);
     }
     
     public DbSet<Department> Departments => Set<Department>();

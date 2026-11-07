@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Departments;
 using DirectoryService.Core.Departments.Errors;
@@ -15,6 +16,7 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
 {
     private readonly AppDbContext _context;
     private readonly ILogger<EfCoreDepartmentsRepository> _logger;
+
     public EfCoreDepartmentsRepository(AppDbContext context,
         ILogger<EfCoreDepartmentsRepository> logger)
     {
@@ -53,6 +55,19 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
         if (department == null)
             return Result.Failure<Department, Errors>(
                 Fails.DepartmentError.DepartmentNotFoundException(departmentId.Value));
+
+        return Result.Success<Department, Errors>(department);
+    }
+
+    public async Task<Result<Department, Errors>> GetByAsync(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken)
+    {
+        Department? department = await _context.Departments.FirstOrDefaultAsync(predicate, cancellationToken);
+        
+        if (department == null)
+            return Result.Failure<Department, Errors>(
+                Fails.DepartmentError.DepartmentNotFoundException(null));
         
         return Result.Success<Department, Errors>(department);
     }
@@ -67,8 +82,8 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
         var exists = count == locationIds.Count;
 
         if (!exists)
-            return Result.Failure<bool,Errors>(Fails.DepartmentError.LocationExistsException());
-        
+            return Result.Failure<bool, Errors>(Fails.DepartmentError.LocationExistsException());
+
         return Result.Success<bool, Errors>(exists);
     }
 
@@ -84,16 +99,16 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
             if (hasLocations)
                 return Result.Failure<Guid, Errors>(
                     Fails.DepartmentError.DepartmentHasRelationsLocationsException());
-            
-            
+
+
             var hasPositions = await _context.DepartmentPosition
                 .AnyAsync(dp => dp.DepartmentId == departmentId, cancellationToken);
 
             if (hasPositions)
                 return Result.Failure<Guid, Errors>(
                     Fails.DepartmentError.DepartmentHasRelationsPositionsException());
-            
-            
+
+
             var department = await _context.Departments
                 .FirstOrDefaultAsync(
                     d => d.Id == departmentId,
@@ -102,8 +117,8 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
             if (department is null)
                 return Result.Failure<Guid, Errors>(
                     Fails.DepartmentError.DepartmentNotFoundException(departmentId.Value));
-            
-            
+
+
             _context.Departments.Remove(department);
 
             return Result.Success<Guid, Errors>(department.Id.Value);

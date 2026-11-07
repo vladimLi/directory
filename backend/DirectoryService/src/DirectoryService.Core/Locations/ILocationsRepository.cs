@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Domain.Locations;
 using DirectoryService.Domain.Locations.ValueObjects;
@@ -11,6 +12,11 @@ public interface ILocationsRepository
     Task<Result<Location,Shared.Errors>> GetByIdAsync(
         LocationId locationId,
         CancellationToken cancellationToken);
+    
+    Task<Result<Location, Shared.Errors>> GetByAsync(
+        Expression<Func<Location, bool>> predicate,
+        CancellationToken cancellationToken);
+    
     Task<Result<Guid, Shared.Errors>> DeleteAsync(
         LocationId locationId,
         CancellationToken cancellationToken);

@@ -40,14 +40,20 @@ public class DeleteLocationHandler
             return locationId.Error;
         }
         
-        var location = await  _repository.DeleteAsync(locationId.Value, cancellationToken);
+        var location = await  _repository.GetByAsync(
+            l => l.Id == locationId.Value,
+            cancellationToken);
+        
         if (location.IsFailure)
         {
             transactionScope.Rollback();
             return location.Error;
         }
+
+        location.Value.SoftDelete();
         
         var saveResult = await _transactionManager.SaveChangesAsync(cancellationToken);
+        
         if (saveResult.IsFailure)
         {
             transactionScope.Rollback();

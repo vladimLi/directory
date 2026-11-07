@@ -41,5 +41,16 @@ public class LocationConfigurations: IEntityTypeConfiguration<Location>
                 v => v.ToUniversalTime(),
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
             );
+        builder.Property(d => d.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired();
+        
+        builder.Property(d => d.DeletedAt)
+            .HasColumnName("deleted_at")
+            .HasColumnType("timestamp with time zone")
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
     }
 }

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Core.Positions;
 using DirectoryService.Core.Positions.Errors;
@@ -57,6 +58,19 @@ public class EfCorePositionsRepository : IPositionRepository
         if (position == null)
             return Result.Failure<Position, Errors>(
                 Fails.PositionsError.PositionNotFoundException(positionId.Value));
+        
+        return Result.Success<Position, Errors>(position);
+    }
+
+    public async Task<Result<Position, Errors>> GetByAsync(
+        Expression<Func<Position, bool>> predicate,
+        CancellationToken cancellationToken)
+    {
+        Position? position = await _context.Positions.FirstOrDefaultAsync(predicate, cancellationToken);
+        
+        if (position == null)
+            return Result.Failure<Position, Errors>(
+                Fails.PositionsError.PositionNotFoundException(null));
         
         return Result.Success<Position, Errors>(position);
     }

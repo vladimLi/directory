@@ -9,8 +9,11 @@ public sealed class Location
     public LocationId Id { get; } = null!;
     public LocationName Name { get; private set; } = null!;
     public LocationAddress Address { get; private set; } = null!;
+    public bool IsDeleted { get; private set; }
     public DateTime CreatedAt { get; }
     public DateTime UpdatedAt { get; }
+    public DateTime DeletedAt { get; private set; }
+    
 
     //EF Core
     private Location() { }
@@ -64,6 +67,15 @@ public sealed class Location
         if (newAddress.IsFailure)
             return newAddress;
         Address = newAddress.Value;
+        return UnitResult.Success<Errors>();
+    }
+    public UnitResult<Errors> SoftDelete()
+    {
+        if (IsDeleted)
+            return UnitResult.Success<Errors>();
+        
+        IsDeleted = true;
+        DeletedAt = DateTime.UtcNow;
         return UnitResult.Success<Errors>();
     }
 }
