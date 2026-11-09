@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
@@ -13,6 +14,11 @@ namespace DirectoryService.IntegrationTests.Infrastructure;
 
 public class DirectoryTestWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    // Program.cs uses Serilog's CreateBootstrapLogger(), which freezes a static logger
+    // during host creation. Parallel entry point executions race on it, so host creation
+    // (not the whole test) is serialized. See serilog/serilog-aspnetcore#289.
+    private static readonly Lock HostCreationLock = new();
+
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder("postgres")
         .WithDatabase("directory_service_db")
         .WithUsername("postgres")
@@ -21,6 +27,14 @@ public class DirectoryTestWebFactory : WebApplicationFactory<Program>, IAsyncLif
 
     private DbConnection _dbConnection = null!;
     private  Respawner _respawner = null!;
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        lock (HostCreationLock)
+        {
+            return base.CreateHost(builder);
+        }
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

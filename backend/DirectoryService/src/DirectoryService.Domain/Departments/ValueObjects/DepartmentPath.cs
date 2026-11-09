@@ -8,6 +8,8 @@ public sealed record DepartmentPath
     public string Value { get; }
     private DepartmentPath(string value) => Value = value;
 
+    public static DepartmentPath Restore(string value) => new(value);
+
     public static Result<DepartmentPath,Errors> Create(
     string slug,
     DepartmentPath? parentPath = null,

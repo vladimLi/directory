@@ -24,6 +24,41 @@ public class DepartmentsController : ControllerBase
         return await handler.Handle(command, cancellationToken);
     }
 
+    [HttpGet("tree")]
+    public async Task<EndpointResult<IReadOnlyList<DepartmentTreeNodeDto>>> GetTree(
+        [FromServices] GetDepartmentTreeHandler handler,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(cancellationToken);
+    }
+
+    [HttpGet("tree/search")]
+    public async Task<EndpointResult<IReadOnlyList<DepartmentSearchResultDto>>> Search(
+        [FromServices] SearchDepartmentsHandler handler,
+        [FromQuery] string? q,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(q, cancellationToken);
+    }
+
+    [HttpGet("{id:guid}/children")]
+    public async Task<EndpointResult<IReadOnlyList<DepartmentTreeNodeDto>>> GetChildren(
+        [FromServices] GetDepartmentChildrenHandler handler,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(id, cancellationToken);
+    }
+
+    [HttpGet("{id:guid}/ancestors")]
+    public async Task<EndpointResult<IReadOnlyList<DepartmentAncestorDto>>> GetAncestors(
+        [FromServices] GetDepartmentAncestorsHandler handler,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        return await handler.Handle(id, cancellationToken);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<EndpointResult<GetDepartmentByIdResponse>> GetById(
         [FromServices] GetDepartmentByIdHandler handler,

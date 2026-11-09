@@ -33,6 +33,7 @@ public static class InfrastructureDependencyInjection
        
         services.AddScoped<ILocationsRepository, EfCoreLocationsRepository>();
         services.AddScoped<IDepartmentsRepository, EfCoreDepartmentsRepository>();
+        services.AddScoped<IDepartmentTreeRepository, EfCoreDepartmentTreeRepository>();
         services.AddScoped<IPositionRepository, EfCorePositionsRepository>();
         services.AddScoped<IDepartmentLocationRepository, EfCoreDepartmentLocationRepository>();
         services.AddScoped<IDepartmentPositionRepository, EfCoreDepartmentPositionRepository>();

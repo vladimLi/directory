@@ -98,8 +98,7 @@ public class CreateDepartmentHandler :
         var department = Department.Create(
             command.Request.Name,
             command.Request.Slug,
-            parentDepartment.Value?.Path,
-            parentDepartment.Value?.Id
+            parentDepartment.Value
         );
         if (department.IsFailure)
         {

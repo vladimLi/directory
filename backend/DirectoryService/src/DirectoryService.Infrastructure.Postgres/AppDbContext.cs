@@ -28,6 +28,8 @@ public class AppDbContext(string connectionString) : DbContext, IReadDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("ltree");
+        
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         
         modelBuilder.Entity<Department>()

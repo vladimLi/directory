@@ -40,7 +40,7 @@ try
 
     await app.RunAsync();
 }
-catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException and not HostAbortedException)
 {
     Log.Fatal(ex, "Application terminated unexpectedly");
 }
