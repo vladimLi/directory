@@ -22,7 +22,9 @@ SELECT
   NOW(), NOW(), false, '-infinity'::timestamptz
 FROM generate_series(1, 300) AS s(i);
 
--- Departments: ~10,000 in 4 levels (20 roots). Labels use [A-Za-z0-9_], safe for ltree.
+-- Departments: ~10,000 in 4 levels (20 roots).
+-- Slugs must satisfy domain validation: [a-z0-9] with optional internal hyphens.
+-- ltree labels in this PG build accept hyphens; path labels mirror slug segments.
 DO $$
 DECLARE
   root_id uuid;
@@ -41,7 +43,7 @@ DECLARE
 BEGIN
   FOR r IN 1..20 LOOP
     root_id := gen_random_uuid();
-    root_slug := 'dept_r' || lpad(r::text, 2, '0');
+    root_slug := 'dept-r' || lpad(r::text, 2, '0');
     root_path := root_slug::ltree;
     INSERT INTO departments (id, name, slug, path, parent_id, depth, created_at, updated_at, is_deleted, deleted_at)
     VALUES (root_id, 'Department Root ' || r, root_slug, root_path, NULL, 0, NOW(), NOW(), false, '-infinity'::timestamptz);
@@ -49,7 +51,7 @@ BEGIN
 
     FOR c1 IN 1..9 LOOP
       l1_id := gen_random_uuid();
-      l1_slug := 'dept_r' || lpad(r::text,2,'0') || '_a' || lpad(c1::text,2,'0');
+      l1_slug := 'dept-r' || lpad(r::text,2,'0') || '-a' || lpad(c1::text,2,'0');
       l1_path := (root_path::text || '.' || l1_slug)::ltree;
       INSERT INTO departments (id, name, slug, path, parent_id, depth, created_at, updated_at, is_deleted, deleted_at)
       VALUES (l1_id, 'Department L1 ' || r || '-' || c1, l1_slug, l1_path, root_id, 1, NOW(), NOW(), false, '-infinity'::timestamptz);
@@ -57,7 +59,7 @@ BEGIN
 
       FOR c2 IN 1..10 LOOP
         l2_id := gen_random_uuid();
-        l2_slug := l1_slug || '_b' || lpad(c2::text,2,'0');
+        l2_slug := l1_slug || '-b' || lpad(c2::text,2,'0');
         l2_path := (l1_path::text || '.' || l2_slug)::ltree;
         INSERT INTO departments (id, name, slug, path, parent_id, depth, created_at, updated_at, is_deleted, deleted_at)
         VALUES (l2_id, 'Department L2 ' || r || '-' || c1 || '-' || c2, l2_slug, l2_path, l1_id, 2, NOW(), NOW(), false, '-infinity'::timestamptz);
@@ -65,7 +67,7 @@ BEGIN
 
         FOR c3 IN 1..(CASE WHEN c2 <= 8 THEN 4 ELSE 5 END) LOOP
           l3_id := gen_random_uuid();
-          l3_slug := l2_slug || '_c' || lpad(c3::text,2,'0');
+          l3_slug := l2_slug || '-c' || lpad(c3::text,2,'0');
           l3_path := (l2_path::text || '.' || l3_slug)::ltree;
           INSERT INTO departments (id, name, slug, path, parent_id, depth, created_at, updated_at, is_deleted, deleted_at)
           VALUES (l3_id, 'Department L3 ' || r || '-' || c1 || '-' || c2 || '-' || c3, l3_slug, l3_path, l2_id, 3, NOW(), NOW(), false, '-infinity'::timestamptz);
