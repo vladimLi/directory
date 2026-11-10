@@ -40,5 +40,11 @@ public class DepartmentPositionConfiguration:IEntityTypeConfiguration<Department
             .IsRequired()
             .HasConstraintName("fk_department_position_positions")
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasIndex(dp => dp.DepartmentId)
+            .HasDatabaseName("ix_department_positions_department_id");
+        
+        builder.HasIndex(dp => dp.PositionId)
+            .HasDatabaseName("ix_department_positions_position_id");
     }
 }
