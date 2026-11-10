@@ -32,9 +32,22 @@ public class DepartmentConfiguration: IEntityTypeConfiguration<Department>
         
         builder.Property(d => d.Path)
             .IsRequired()
-            .HasConversion(p => p.Value, path => DepartmentPath.Create(path).Value)
-            .HasMaxLength(LengthConstants.Length500)
+            .HasConversion(
+                path => path.Value.Replace('/', '.'),
+                value => DepartmentPath.Restore(value.Replace('.', '/')))
+            .HasColumnType("ltree")
             .HasColumnName("path");
+        
+        builder.Property(d => d.Depth)
+            .IsRequired()
+            .HasColumnName("depth");
+        
+        builder.HasIndex(d => d.ParentId)
+            .HasDatabaseName("ix_departments_parent_id");
+        
+        builder.HasIndex(d => d.Path)
+            .HasDatabaseName("ix_departments_path_gist")
+            .HasMethod("gist");
         
         builder.Property(d => d.ParentId)
             .HasConversion(id => id!.Value, g => DepartmentId.Create(g).Value)

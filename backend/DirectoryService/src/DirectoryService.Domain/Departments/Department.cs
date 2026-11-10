@@ -6,11 +6,14 @@ namespace DirectoryService.Domain.Departments;
 
 public sealed class Department
 {
+    private const int RootDepth = 0;
+
     public DepartmentId Id { get; } = null!;
     public DepartmentName Name { get; private set; } = null!;
     public DepartmentSlug Slug { get; private set; } = null!;
     public DepartmentPath Path { get; } = null!;
     public DepartmentId? ParentId { get; }
+    public int Depth { get; private set; }
     public bool IsDeleted { get; private set; }
     public DateTime CreatedAt { get; }
     public DateTime UpdatedAt { get; }
@@ -22,13 +25,15 @@ public sealed class Department
         DepartmentName name,
         DepartmentSlug slug,
         DepartmentPath path,
-        DepartmentId? parentId = null)
+        DepartmentId? parentId = null,
+        int depth = RootDepth)
     {
         Id = id;
         Name = name;
         Slug = slug;
         Path = path;
         ParentId = parentId;
+        Depth = depth;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
@@ -36,8 +41,7 @@ public sealed class Department
     public static Result<Department,Errors> Create(
         string name,
         string slug,
-        DepartmentPath? parentPath = null,
-        DepartmentId? parentId = null)
+        Department? parent = null)
     {
         var departmentId = DepartmentId.Create(Guid.CreateVersion7());
         if (departmentId.IsFailure)
@@ -49,7 +53,7 @@ public sealed class Department
         if (departmentSlug.IsFailure)
             return departmentSlug.Error;
         var departmentPath = DepartmentPath
-            .Create(departmentSlug.Value.Value, parentPath, parentId);
+            .Create(departmentSlug.Value.Value, parent?.Path, parent?.Id);
         if (departmentPath.IsFailure)
             return departmentPath.Error;
         
@@ -57,7 +61,8 @@ public sealed class Department
             departmentName.Value,
             departmentSlug.Value, 
             departmentPath.Value,
-            parentId);
+            parent?.Id,
+            parent is null ? RootDepth : parent.Depth + 1);
     }
 
     public UnitResult<Errors> UpdateName(string name)
