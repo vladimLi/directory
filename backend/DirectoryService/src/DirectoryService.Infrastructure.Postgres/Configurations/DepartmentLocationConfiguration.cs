@@ -43,5 +43,11 @@ public sealed class DepartmentLocationConfiguration: IEntityTypeConfiguration<De
             .IsRequired()
             .HasConstraintName("fk_department_locations_locations")
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasIndex(dl => dl.DepartmentId)
+            .HasDatabaseName("ix_department_locations_department_id");
+        
+        builder.HasIndex(dl => dl.LocationId)
+            .HasDatabaseName("ix_department_locations_location_id");
     }
 }

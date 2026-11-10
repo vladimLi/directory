@@ -42,6 +42,16 @@ public class DepartmentConfiguration: IEntityTypeConfiguration<Department>
             .IsRequired()
             .HasColumnName("depth");
         
+        builder.HasIndex(d => d.Slug)
+            .IsUnique()
+            .HasDatabaseName("ix_departments_slug_active")
+            .HasFilter("is_deleted = false");
+        
+        builder.HasIndex(d => d.Name)
+            .HasDatabaseName("ix_departments_name_trgm")
+            .HasMethod("gin")
+            .HasOperators("gin_trgm_ops");
+        
         builder.HasIndex(d => d.ParentId)
             .HasDatabaseName("ix_departments_parent_id");
         
