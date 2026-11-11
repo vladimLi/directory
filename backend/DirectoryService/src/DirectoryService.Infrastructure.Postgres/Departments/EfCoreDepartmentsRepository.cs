@@ -59,6 +59,16 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
         return Result.Success<Department, Errors>(department);
     }
 
+    public async Task<Department?> GetByIdIncludingDeletedAsync(
+        DepartmentId departmentId,
+        CancellationToken cancellationToken)
+    {
+        return await _context.Departments
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .SingleOrDefaultAsync(d => d.Id == departmentId, cancellationToken);
+    }
+
     public async Task<Result<Department, Errors>> GetByAsync(
         Expression<Func<Department, bool>> predicate,
         CancellationToken cancellationToken)
@@ -130,6 +140,42 @@ public class EfCoreDepartmentsRepository : IDepartmentsRepository
             return Result.Failure<Guid, Errors>(
                 Fails.DepartmentError.SaveFailedException(ex.Message)
             );
+        }
+    }
+
+    public async Task<UnitResult<Errors>> MoveSubtreeAsync(
+        Guid departmentId,
+        Guid? newParentId,
+        string oldPathLtree,
+        string newPathLtree,
+        int oldDepth,
+        int newDepth,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var depthDelta = newDepth - oldDepth;
+
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"
+UPDATE departments
+SET
+    parent_id = CASE WHEN id = {departmentId} THEN {newParentId} ELSE parent_id END,
+    path = CASE
+        WHEN path = {oldPathLtree}::ltree THEN {newPathLtree}::ltree
+        ELSE {newPathLtree}::ltree || subpath(path, nlevel({oldPathLtree}::ltree))
+    END,
+    depth = depth + {depthDelta},
+    updated_at = timezone('utc', now())
+WHERE path <@ {oldPathLtree}::ltree;", cancellationToken);
+
+            return UnitResult.Success<Errors>();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+        {
+            _logger.LogError(ex, "Ошибка при переносе поддерева департамента {DepartmentId}", departmentId);
+
+            return UnitResult.Failure<Errors>(
+                Fails.DepartmentError.SaveFailedException(ex.Message));
         }
     }
 }

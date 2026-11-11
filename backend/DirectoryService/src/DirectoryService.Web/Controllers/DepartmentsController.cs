@@ -3,6 +3,7 @@ using DirectoryService.Core.Abstractions;
 using DirectoryService.Core.Departments.Commands;
 using DirectoryService.Core.Departments.Commands.CreateDepartment;
 using DirectoryService.Core.Departments.Commands.DeleteDepartment;
+using DirectoryService.Core.Departments.Commands.MoveDepartmentParent;
 using DirectoryService.Core.Departments.Commands.UpdateDepartmentSlug;
 using DirectoryService.Core.Departments.Queries;
 using DirectoryService.Web.EndpointResults;
@@ -95,6 +96,17 @@ public class DepartmentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         return await handler.Handle(request, cancellationToken);
+    }
+
+    [HttpPut("{departmentId:guid}/parent")]
+    public async Task<EndpointResult<MoveDepartmentParentResponse>> MoveParent(
+        [FromRoute] Guid departmentId,
+        [FromBody] MoveDepartmentParentRequest request,
+        [FromServices] ICommandHandler<MoveDepartmentParentResponse, MoveDepartmentParentCommand> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new MoveDepartmentParentCommand(departmentId, request.ParentId);
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpPut("{id:guid}")]
