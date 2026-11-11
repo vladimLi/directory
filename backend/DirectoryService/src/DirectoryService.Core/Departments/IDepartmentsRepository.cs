@@ -19,6 +19,10 @@ public interface IDepartmentsRepository
     Task<Result<Department, Shared.Errors>> GetByIdAsync(
         DepartmentId departmentId,
         CancellationToken cancellationToken);
+
+    Task<Department?> GetByIdIncludingDeletedAsync(
+        DepartmentId departmentId,
+        CancellationToken cancellationToken);
     
     Task<Result<Department, Shared.Errors>> GetByAsync(
         Expression<Func<Department, bool>> predicate,
@@ -30,5 +34,14 @@ public interface IDepartmentsRepository
 
      Task<Result<Guid, Shared.Errors>> DeleteAsync(
          DepartmentId departmentId,
+         CancellationToken cancellationToken);
+
+     Task<UnitResult<Shared.Errors>> MoveSubtreeAsync(
+         Guid departmentId,
+         Guid? newParentId,
+         string oldPathLtree,
+         string newPathLtree,
+         int oldDepth,
+         int newDepth,
          CancellationToken cancellationToken);
 }
